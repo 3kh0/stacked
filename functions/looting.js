@@ -106,7 +106,7 @@ function formatLootBlockKit({ killer, victim, weapon, lootSummary, lootMoney }) 
   });
 
   // head
-  const headline = `*<@${killer.slack_uid}> killed <@${victim.slack_uid}> using ${itemEmoji(weaponName)} \`${weaponName}\` and looted *${totalItems}* item${totalItems === 1 ? "" : "s"}${lootMoney > 0 ? ` (+:moneybag: $${fixMoney(lootMoney)})` : ""}`;
+  const headline = `*<@${killer.slack_uid}> killed <@${victim.slack_uid}> using ${itemEmoji(weapon)} \`${weapon}\` and looted *${totalItems}* item${totalItems === 1 ? "" : "s"}${lootMoney > 0 ? ` (+:moneybag: $${fixMoney(lootMoney)})` : ""}`;
   const blocks = [
     {
       type: "section",
