@@ -7,13 +7,19 @@ module.exports = async ({ respond, command }) => {
   let lookup = false;
   const args = command.text ? command.text.trim().split(/\s+/) : [];
   if (args.length > 1) {
-    const match = args[1].match(/^U[A-Z0-9]{8,}$/);
+    let arg = args[1];
+    // match <@U1234|user> or <@U1234>
+    const escaped = arg.match(/^<@([A-Z0-9]+)(?:\|[^>]+)?>$/);
+    if (escaped) {
+      arg = escaped[1];
+    }
+    const match = arg.match(/^U[A-Z0-9]{8,}$/);
     if (match && match[0] !== command.user_id) {
       slack_uid = match[0];
       lookup = true;
     } else {
       await respond({
-        text: ":red-x: Please provide a Slack user ID (example: U12345678)",
+        text: ":red-x: Please provide a user to look up in the format `<@U1234>` or `U1234`.",
       });
       return;
     }
