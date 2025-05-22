@@ -64,69 +64,6 @@ function lootUser(victim, killer) {
   };
 }
 
-function formatLootBlockKit({ killerId, victimId, weaponName, lootResult }) {
-  const rarityLabels = {
-    common: ":stk_common_c:ommon",
-    uncommon: ":stk_uncommon_u:ncommon",
-    rare: ":stk_rare_r:are",
-    ultra_rare: ":stk_ultrarare_u:ltra :stk_ultrarare_r:are",
-    epic: ":stk_epic_e:pic",
-  };
-  const itemsByRarity = {
-    common: [],
-    uncommon: [],
-    rare: [],
-    ultra_rare: [],
-    epic: [],
-  };
-  for (const entry of lootResult.lootSummary || []) {
-    const match = entry.match(/^(.*) `(.+)` x(\d+)/);
-    if (match) {
-      const [, emoji, name, qty] = match;
-      const def = itemsList.find((i) => i.name === name);
-      const tier = def?.tier || "common";
-      itemsByRarity[tier]?.push({ emoji, name, qty });
-    }
-  }
-  const total = (lootResult.lootSummary || []).reduce((sum, entry) => {
-    const m = entry.match(/x(\d+)/);
-    return sum + (m ? parseInt(m[1], 10) : 0);
-  }, 0);
-  const blocks = [
-    {
-      type: "section",
-      text: {
-        type: "mrkdwn",
-        text: `<@${killerId}> killed <@${victimId}> using ${itemEmoji(weaponName)} \`${weaponName}\` and looted *${total}* item${total === 1 ? "" : "s"}!`,
-      },
-    },
-    { type: "divider" },
-  ];
-  for (const tier of ["common", "uncommon", "rare", "ultra_rare", "epic"]) {
-    const items = itemsByRarity[tier];
-    if (items && items.length > 0) {
-      const lines = items.map((i) => `${i.emoji} \`${i.name}\` x${i.qty}`).join("\n");
-      blocks.push({
-        type: "section",
-        text: {
-          type: "mrkdwn",
-          text: `*${rarityLabels[tier]}*\n${lines}\n‍‍‎`,
-        },
-      });
-    }
-  }
-  if (lootResult.lootMoney && lootResult.lootMoney > 0) {
-    blocks.push({
-      type: "section",
-      text: {
-        type: "mrkdwn",
-        text: `:moneybag: *Looted ${fixMoney(lootResult.lootMoney, true)}*`,
-      },
-    });
-  }
-  return { blocks };
-}
-
 /**
  * format results
  * @param {object} params - { killer, victim, weapon, lootSummary, lootMoney }
