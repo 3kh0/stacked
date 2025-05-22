@@ -27,7 +27,7 @@ module.exports = async ({ respond }) => {
           {
             type: "mrkdwn",
             text:
-              "This is not all commands, and some commands have shortcuts.\n" +
+              "These are not all commands, and some commands have shortcuts.\n" +
               "For example, /stacked i is the same as /stacked inventory and /stacked a is the same as /stacked use\n" +
               "All the routes can be seen here: <https://github.com/3kh0/stacked/blob/main/app.js|app.js on GitHub>",
           },
