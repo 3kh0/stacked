@@ -29,11 +29,7 @@ async function getInv(userId) {
     console.error(`[inv] getInv: invalid userId`, userId);
     return [];
   }
-  const { data, error } = await supabase
-    .from("users")
-    .select("inventory")
-    .eq("slack_uid", userId)
-    .single();
+  const { data, error } = await supabase.from("users").select("inventory").eq("slack_uid", userId).single();
   if (error) console.error(`[inv] getInv error:`, error);
   if (!data) {
     console.warn(`[inv] getInv: no data for userId`, userId);
@@ -41,11 +37,7 @@ async function getInv(userId) {
   }
   let inv = data.inventory;
   if (!check(inv)) {
-    console.error(
-      `[inv] getInv: invalid inventory format for userId`,
-      userId,
-      inv
-    );
+    console.error(`[inv] getInv: invalid inventory format for userId`, userId, inv);
     return [];
   }
   return inv;
@@ -84,30 +76,17 @@ async function addItems(userId, items) {
     const idx = inventory.findIndex((i) => i.item === newItem.item);
     if (idx !== -1) {
       inventory[idx].qty = (inventory[idx].qty || 0) + newItem.qty;
-      console.log(
-        `[inv] addItems: updated qty for`,
-        newItem.item,
-        "to",
-        inventory[idx].qty
-      );
+      console.log(`[inv] addItems: updated qty for`, newItem.item, "to", inventory[idx].qty);
     } else {
       inventory.push({ item: newItem.item, qty: newItem.qty });
-      console.log(
-        `[inv] addItems: added new item`,
-        newItem.item,
-        "qty",
-        newItem.qty
-      );
+      console.log(`[inv] addItems: added new item`, newItem.item, "qty", newItem.qty);
     }
   }
   if (!check(inventory)) {
     console.error(`[inv] addItems: resulting inventory invalid`, inventory);
     return [];
   }
-  const { error } = await supabase
-    .from("users")
-    .update({ inventory })
-    .eq("slack_uid", userId);
+  const { error } = await supabase.from("users").update({ inventory }).eq("slack_uid", userId);
   if (error) console.error(`[inv] addItems update error:`, error);
   return inventory;
 }
@@ -145,12 +124,7 @@ async function takeItems(userId, items) {
     const idx = inventory.findIndex((i) => i.item === rem.item);
     if (idx !== -1) {
       inventory[idx].qty -= rem.qty;
-      console.log(
-        `[inv] takeItems: updated qty for`,
-        rem.item,
-        "to",
-        inventory[idx].qty
-      );
+      console.log(`[inv] takeItems: updated qty for`, rem.item, "to", inventory[idx].qty);
       if (inventory[idx].qty <= 0) {
         inventory.splice(idx, 1);
         console.log(`[inv] takeItems: removed item`, rem.item);
@@ -163,10 +137,7 @@ async function takeItems(userId, items) {
     console.error(`[inv] takeItems: resulting inventory invalid`, inventory);
     return [];
   }
-  const { error } = await supabase
-    .from("users")
-    .update({ inventory })
-    .eq("slack_uid", userId);
+  const { error } = await supabase.from("users").update({ inventory }).eq("slack_uid", userId);
   if (error) console.error(`[inv] takeItems update error:`, error);
   return inventory;
 }

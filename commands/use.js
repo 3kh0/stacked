@@ -11,9 +11,7 @@ function randomInt(min, max) {
 
 module.exports = async function useCommand({ args, respond, command }) {
   if (!args[0]) {
-    await respond(
-      ":red-x: Please specify an item to use, e.g. `/stacked use painkillers`."
-    );
+    await respond(":red-x: Please specify an item to use, e.g. `/stacked use painkillers`.");
     return;
   }
   const itemName = args[0].toLowerCase();
@@ -38,19 +36,14 @@ module.exports = async function useCommand({ args, respond, command }) {
   if (target.type === "box") {
     const idx = inv.findIndex((i) => i.item === target.name);
     if (idx === -1 || inv[idx].qty < 1) {
-      await respond(
-        `:red-x: You do not have any ${itemEmoji(target.name)} \`${
-          target.name
-        }\` to open.`
-      );
+      await respond(`:red-x: You do not have any ${itemEmoji(target.name)} \`${target.name}\` to open.`);
       return;
     }
 
     const rarity = drawTier(target.tier); // floor is box tier
     const unboxed = drawItem(rarity, { noBox: true });
     const label = {
-      common:
-        ":stk_common_c::stk_common_o::stk_common_m::stk_common_m::stk_common_o::stk_common_n:",
+      common: ":stk_common_c::stk_common_o::stk_common_m::stk_common_m::stk_common_o::stk_common_n:",
       uncommon:
         ":stk_uncommon_u::stk_uncommon_n::stk_uncommon_c::stk_uncommon_o::stk_uncommon_m::stk_uncommon_m::stk_uncommon_o::stk_uncommon_n:",
       rare: ":stk_rare_r::stk_rare_a::stk_rare_r::stk_rare_e:",
@@ -61,11 +54,7 @@ module.exports = async function useCommand({ args, respond, command }) {
     await takeItems(slack_uid, { item: target.name, qty: 1 });
     await addItems(slack_uid, { item: unboxed, qty: 1 });
     await respond(
-      `${
-        label[rarity] || rarity.charAt(0).toUpperCase() + rarity.slice(1)
-      } ${itemEmoji(unboxed)} \`${unboxed}\` unboxed from your ${itemEmoji(
-        target.name
-      )} \`${target.name}\`!`
+      `${label[rarity] || rarity.charAt(0).toUpperCase() + rarity.slice(1)} ${itemEmoji(unboxed)} \`${unboxed}\` unboxed from your ${itemEmoji(target.name)} \`${target.name}\`!`,
     );
     return;
   }
@@ -82,25 +71,16 @@ module.exports = async function useCommand({ args, respond, command }) {
     // Remove one from inv for the healing item
     const idx = inv.findIndex((i) => i.item === target.name);
     if (idx === -1 || inv[idx].qty < 1) {
-      await respond(
-        `:red-x: You do not have any ${itemEmoji(target.name)} \`${
-          target.name
-        }\` to use.`
-      );
+      await respond(`:red-x: You do not have any ${itemEmoji(target.name)} \`${target.name}\` to use.`);
       return;
     }
     await takeItems(slack_uid, { item: target.name, qty: 1 });
     const heala = randomInt(target.heal.min, target.heal.max);
     const healed = Math.min(heala, 100 - chp);
     const nhp = Math.min(chp + healed, 100);
-    await supabase
-      .from("users")
-      .update({ hp: nhp })
-      .eq("slack_uid", slack_uid);
+    await supabase.from("users").update({ hp: nhp }).eq("slack_uid", slack_uid);
     await respond(
-      `You used a ${itemEmoji(target.name)} \`${
-        target.name
-      }\` and healed *${healed} HP*! (HP: *${chp} → ${nhp}*)`
+      `You used a ${itemEmoji(target.name)} \`${target.name}\` and healed *${healed} HP*! (HP: *${chp} → ${nhp}*)`,
     );
     return;
   }
@@ -114,7 +94,5 @@ module.exports = async function useCommand({ args, respond, command }) {
     return;
   }
 
-  await respond(
-    `:red-x: ${itemEmoji(target.name)} *${target.name}* is not a usable item.`
-  );
+  await respond(`:red-x: ${itemEmoji(target.name)} *${target.name}* is not a usable item.`);
 };

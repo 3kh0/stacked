@@ -35,9 +35,7 @@ module.exports = async ({ respond, command, client }) => {
   const inventory = user.inventory || [];
   const balance = user.balance !== undefined ? user.balance : 0;
   const hp = user.hp !== undefined ? user.hp : 100;
-  const opt = user.opt_status
-    ? "*:stk_optin: Opted In*"
-    : ":stk_optout: Opted Out";
+  const opt = user.opt_status ? "*:stk_optin: Opted In*" : ":stk_optout: Opted Out";
 
   // Group items by rarity
   const rarityMap = {
@@ -59,12 +57,13 @@ module.exports = async ({ respond, command, client }) => {
       type: "section",
       text: {
         type: "mrkdwn",
-        text: `*<@${slack_uid}>'s inventory!*\n${
-          lookup ? "They have" : "You have"
-        } :moneybag: *${balance.toLocaleString("en-US", {
-          style: "currency",
-          currency: "USD",
-        })}*, :heart: *${hp}* HP, and ${lookup ? "their" : "your"} ${opt}`,
+        text: `*<@${slack_uid}>'s inventory!*\n${lookup ? "They have" : "You have"} :moneybag: *${balance.toLocaleString(
+          "en-US",
+          {
+            style: "currency",
+            currency: "USD",
+          },
+        )}*, :heart: *${hp}* HP, and ${lookup ? "their" : "your"} ${opt}`,
       },
     },
     { type: "divider" },
@@ -79,7 +78,8 @@ module.exports = async ({ respond, command, client }) => {
   };
 
   const fields = [];
-  function srt(a, b) { // most jank sort
+  function srt(a, b) {
+    // most jank sort
     const special = /^[^a-zA-Z0-9]/;
     const aIsSpecial = special.test(a.name);
     const bIsSpecial = special.test(b.name);
@@ -94,9 +94,7 @@ module.exports = async ({ respond, command, client }) => {
   for (const tier of ["common", "uncommon", "rare", "ultra_rare", "epic"]) {
     if (rarityMap[tier].length > 0) {
       const sorted = rarityMap[tier].slice().sort(srt);
-      const itemLines = sorted
-        .map((i) => `${itemEmoji(i.name)} ${i.name} x${i.qty}`)
-        .join("\n");
+      const itemLines = sorted.map((i) => `${itemEmoji(i.name)} ${i.name} x${i.qty}`).join("\n");
       fields.push({
         type: "mrkdwn",
         text: `*${rarityLabels[tier]}*\n${itemLines}\n‍‍‎`, // zero height space

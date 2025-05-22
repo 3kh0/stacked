@@ -9,11 +9,7 @@ function findItem(input) {
   if (found) return found;
   // Match by alias
   return (
-    items.find(
-      (item) =>
-        Array.isArray(item.alias) &&
-        item.alias.some((a) => a.toLowerCase() === lowerInput)
-    ) || null
+    items.find((item) => Array.isArray(item.alias) && item.alias.some((a) => a.toLowerCase() === lowerInput)) || null
   );
 }
 

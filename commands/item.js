@@ -49,9 +49,7 @@ module.exports = async ({ args, respond }) => {
   if (item.used_for)
     fields.push({
       type: "mrkdwn",
-      text: `*Used for*: ${item.used_for
-        .map((u) => `${itemEmoji(u)} ${u}`)
-        .join("\n")}`,
+      text: `*Used for*: ${item.used_for.map((u) => `${itemEmoji(u)} ${u}`).join("\n")}`,
     });
   if (item.heal)
     fields.push({
@@ -61,9 +59,7 @@ module.exports = async ({ args, respond }) => {
   if (item.money)
     fields.push({
       type: "mrkdwn",
-      text: `*Min - Max Money*: ${fixCurrency(item.money.min)} - ${fixCurrency(
-        item.money.max
-      )}`,
+      text: `*Min - Max Money*: ${fixCurrency(item.money.min)} - ${fixCurrency(item.money.max)}`,
     });
   if (item.value)
     fields.push({

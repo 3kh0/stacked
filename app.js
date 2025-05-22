@@ -20,22 +20,13 @@ app.command("/stacked", async ({ command, ack, respond }) => {
 
   // define real routes, TODO add aliases
   if (["inventory", "inv", "i", "in"].includes(subcommand)) route = "inventory";
-  else if (
-    ["unbox", "open", "u", "ub", "unb", "hourly", "un", "h"].includes(
-      subcommand
-    )
-  )
-    route = "unbox";
+  else if (["unbox", "open", "u", "ub", "unb", "hourly", "un", "h"].includes(subcommand)) route = "unbox";
   else if (["sell", "s", "sl"].includes(subcommand)) route = "sell";
-  else if (["welcome", "start", "onboard"].includes(subcommand))
-    route = "welcome";
-  else if (["inspect", "item", "info", "stats"].includes(subcommand))
-    route = "item";
-  else if (["use", "a", "attack", "heal", "hit"].includes(subcommand))
-    route = "use";
+  else if (["welcome", "start", "onboard"].includes(subcommand)) route = "welcome";
+  else if (["inspect", "item", "info", "stats"].includes(subcommand)) route = "item";
+  else if (["use", "a", "attack", "heal", "hit"].includes(subcommand)) route = "use";
   else if (subcommand === "buy") route = "buy";
-  else if (["opt", "opt-in", "optin", "opt-out", "optout"].includes(subcommand))
-    route = "opt";
+  else if (["opt", "opt-in", "optin", "opt-out", "optout"].includes(subcommand)) route = "opt";
 
   // last ditch effort to match the command
   const commandPath = path.join(__dirname, "commands", `${route}.js`);

@@ -4,7 +4,6 @@ const { fixMoney } = require("./fix.js");
 const { addItems, takeItems } = require("./inventory.js");
 // this shit so jank i gotta redo it
 
-
 function lootUser(victim, killer) {
   let victimInv = (victim.inventory || []).map((entry) => ({
     name: entry.item || entry.name,
@@ -54,16 +53,12 @@ function lootUser(victim, killer) {
     lootMoney,
     updatedVictim: {
       ...victim,
-      inventory: victimInv
-        .filter((i) => i.qty > 0)
-        .map(({ name, qty }) => ({ name, qty })),
+      inventory: victimInv.filter((i) => i.qty > 0).map(({ name, qty }) => ({ name, qty })),
       balance: newVictimMoney,
     },
     updatedKiller: {
       ...killer,
-      inventory: killerInv
-        .filter((i) => i.qty > 0)
-        .map(({ name, qty }) => ({ name, qty })),
+      inventory: killerInv.filter((i) => i.qty > 0).map(({ name, qty }) => ({ name, qty })),
       balance: killerMoney,
     },
   };
@@ -102,9 +97,7 @@ function formatLootBlockKit({ killerId, victimId, weaponName, lootResult }) {
       type: "section",
       text: {
         type: "mrkdwn",
-        text: `<@${killerId}> killed <@${victimId}> using ${itemEmoji(weaponName)} \`${weaponName}\` and looted *${total}* item${
-          total === 1 ? "" : "s"
-        }!`,
+        text: `<@${killerId}> killed <@${victimId}> using ${itemEmoji(weaponName)} \`${weaponName}\` and looted *${total}* item${total === 1 ? "" : "s"}!`,
       },
     },
     { type: "divider" },
@@ -112,9 +105,7 @@ function formatLootBlockKit({ killerId, victimId, weaponName, lootResult }) {
   for (const tier of ["common", "uncommon", "rare", "ultra_rare", "epic"]) {
     const items = itemsByRarity[tier];
     if (items && items.length > 0) {
-      const lines = items
-        .map((i) => `${i.emoji} \`${i.name}\` x${i.qty}`)
-        .join("\n");
+      const lines = items.map((i) => `${i.emoji} \`${i.name}\` x${i.qty}`).join("\n");
       blocks.push({
         type: "section",
         text: {
@@ -141,13 +132,7 @@ function formatLootBlockKit({ killerId, victimId, weaponName, lootResult }) {
  * @param {object} params - { killer, victim, weapon, lootSummary, lootMoney }
  * @returns {object[]} blocks
  */
-function formatLootBlockKit({
-  killer,
-  victim,
-  weapon,
-  lootSummary,
-  lootMoney,
-}) {
+function formatLootBlockKit({ killer, victim, weapon, lootSummary, lootMoney }) {
   // killer, victim: { slack_uid }
   // weapon: { name, tier } or string name
   // lootSummary: array of strings like ':emoji: `name` xN'
@@ -184,11 +169,7 @@ function formatLootBlockKit({
   });
 
   // head
-  const headline = `*<@${killer.slack_uid}> killed <@${
-    victim.slack_uid
-  }> using ${itemEmoji(weaponName)} \`${weaponName}\` and looted *${totalItems}* item${
-    totalItems === 1 ? "" : "s"
-  }${lootMoney > 0 ? ` (+:moneybag: $${fixMoney(lootMoney)})` : ""}`;
+  const headline = `*<@${killer.slack_uid}> killed <@${victim.slack_uid}> using ${itemEmoji(weaponName)} \`${weaponName}\` and looted *${totalItems}* item${totalItems === 1 ? "" : "s"}${lootMoney > 0 ? ` (+:moneybag: $${fixMoney(lootMoney)})` : ""}`;
   const blocks = [
     {
       type: "section",
@@ -204,9 +185,7 @@ function formatLootBlockKit({
         type: "section",
         text: {
           type: "mrkdwn",
-          text: `*${rarityLabels[rarity]}*\n${itemsByRarity[rarity].join(
-            "\n"
-          )}\n‍‍‎`,
+          text: `*${rarityLabels[rarity]}*\n${itemsByRarity[rarity].join("\n")}\n‍‍‎`,
         },
       });
     }

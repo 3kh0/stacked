@@ -18,10 +18,7 @@ module.exports = async ({ respond, command }) => {
     return;
   }
 
-  const { error } = await supabase
-    .from("users")
-    .update({ opt_status: opt })
-    .eq("slack_uid", slack_uid);
+  const { error } = await supabase.from("users").update({ opt_status: opt }).eq("slack_uid", slack_uid);
 
   if (error) {
     console.error("Error updating opt status:", error);

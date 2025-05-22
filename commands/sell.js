@@ -5,10 +5,7 @@ const { findItem } = require("../functions/item.js");
 const { itemEmoji } = require("../functions/itemEmoji.js");
 
 async function updateBalance(slack_uid, newBalance) {
-  return await supabase
-    .from("users")
-    .update({ balance: newBalance })
-    .eq("slack_uid", slack_uid);
+  return await supabase.from("users").update({ balance: newBalance }).eq("slack_uid", slack_uid);
 }
 
 module.exports = async ({ respond, command }) => {
@@ -62,11 +59,7 @@ module.exports = async ({ respond, command }) => {
   const idx = inventory.findIndex((i) => i.item === item.name);
   if (idx === -1 || inventory[idx].qty < qty) {
     await respond({
-      text: `:red-x: You do not have enough ${itemEmoji(item.name)} \`${
-        item.name
-      }\` to sell. You have *${
-        inventory[idx]?.qty || 0
-      }* and you want to sell *${qty}*.`,
+      text: `:red-x: You do not have enough ${itemEmoji(item.name)} \`${item.name}\` to sell. You have *${inventory[idx]?.qty || 0}* and you want to sell *${qty}*.`,
     });
     return;
   }
@@ -75,11 +68,6 @@ module.exports = async ({ respond, command }) => {
   balance = fixMoney(balance + totalGain);
   await updateBalance(slack_uid, balance);
   await respond({
-    text: `:okay-1: You sold *${qty}* ${itemEmoji(item.name)} \`${
-      item.name
-    }\` for *${fixMoney(totalGain, true)}*. New balance: *${fixMoney(
-      balance,
-      true
-    )}*`,
+    text: `:okay-1: You sold *${qty}* ${itemEmoji(item.name)} \`${item.name}\` for *${fixMoney(totalGain, true)}*. New balance: *${fixMoney(balance, true)}*`,
   });
 };

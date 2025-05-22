@@ -12,8 +12,7 @@ module.exports = async ({ respond, command }) => {
   await addItems(slack_uid, { item: item, qty: 1 });
 
   const labels = {
-    common:
-      ":stk_common_c::stk_common_o::stk_common_m::stk_common_m::stk_common_o::stk_common_n:",
+    common: ":stk_common_c::stk_common_o::stk_common_m::stk_common_m::stk_common_o::stk_common_n:",
     uncommon:
       ":stk_uncommon_u::stk_uncommon_n::stk_uncommon_c::stk_uncommon_o::stk_uncommon_m::stk_uncommon_m::stk_uncommon_o::stk_uncommon_n:",
     rare: ":stk_rare_r::stk_rare_a::stk_rare_r::stk_rare_e:",
@@ -26,8 +25,6 @@ module.exports = async ({ respond, command }) => {
   const tier = itemObj ? itemObj.tier : "common";
 
   await respond(
-    `You just unboxed a ${labels[tier] || tier} ${itemEmoji(
-      item
-    )} *${item}*! You may use this command again *in a hour* try to get a better item!`
+    `You just unboxed a ${labels[tier] || tier} ${itemEmoji(item)} *${item}*! You may use this command again *in a hour* try to get a better item!`,
   );
 };

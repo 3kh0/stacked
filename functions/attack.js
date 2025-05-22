@@ -26,9 +26,7 @@ module.exports = async function attack({ user, item, respond }) {
     .eq("slack_uid", user.slack_uid)
     .single();
   if (fetchError) {
-    await respond(
-      ":red-x: Could not check your cooldown. Please try again later."
-    );
+    await respond(":red-x: Could not check your cooldown. Please try again later.");
     return;
   }
   const cdUntil = fUser?.attack_cooldown ? Number(fUser.attack_cooldown) : null;
@@ -37,7 +35,7 @@ module.exports = async function attack({ user, item, respond }) {
     if (now < cdUntil) {
       const timeLeft = fixTime(secDiff);
       await respond(
-        `:red-x: Woah there, you are on cooldown! You can attack again in *${timeLeft}*. Each weapon has a different cooldown time, you can check this by using \`/stacked item <item_name>\`.`
+        `:red-x: Woah there, you are on cooldown! You can attack again in *${timeLeft}*. Each weapon has a different cooldown time, you can check this by using \`/stacked item <item_name>\`.`,
       );
       return;
     }
@@ -72,14 +70,10 @@ module.exports = async function attack({ user, item, respond }) {
   let attackerInv = user.inventory || [];
   let ammoType = item.ammo;
   if (ammoType) {
-    const ammoIdx = attackerInv.findIndex(
-      (i) => i.item === ammoType && i.qty > 0
-    );
+    const ammoIdx = attackerInv.findIndex((i) => i.item === ammoType && i.qty > 0);
     if (ammoIdx === -1) {
       const ammoEmoji = itemEmoji(String(ammoType));
-      await respond(
-        `:red-x: You need at least 1 ${ammoEmoji} \`${ammoType}\` to use this weapon!`
-      );
+      await respond(`:red-x: You need at least 1 ${ammoEmoji} \`${ammoType}\` to use this weapon!`);
       return;
     }
     attackerInv[ammoIdx].qty -= 1;
@@ -98,18 +92,12 @@ module.exports = async function attack({ user, item, respond }) {
   // 6. Inflict damage on target
   const targetHp = target.hp ?? 100;
   const newHp = Math.max(0, targetHp - dmg);
-  await supabase
-    .from("users")
-    .update({ hp: newHp })
-    .eq("slack_uid", target.slack_uid);
+  await supabase.from("users").update({ hp: newHp }).eq("slack_uid", target.slack_uid);
 
   // --- Looting logic if target is killed ---
   if (newHp === 0) {
     // 1. Set opt_status to false and reset HP to 100
-    await supabase
-      .from("users")
-      .update({ opt_status: false, hp: 100 })
-      .eq("slack_uid", target.slack_uid);
+    await supabase.from("users").update({ opt_status: false, hp: 100 }).eq("slack_uid", target.slack_uid);
     const { data: victimUser } = await supabase
       .from("users")
       .select("id, slack_uid, inventory, balance")
@@ -167,9 +155,7 @@ module.exports = async function attack({ user, item, respond }) {
     .eq("slack_uid", user.slack_uid);
   if (updateError) {
     console.error("[ATTACK] Error updating cooldown:", updateError);
-    await respond(
-      ":red-x: Failed to update your cooldown. Please try again later."
-    );
+    await respond(":red-x: Failed to update your cooldown. Please try again later.");
     return;
   }
 
@@ -177,10 +163,10 @@ module.exports = async function attack({ user, item, respond }) {
   const targetMention = `<@${target.slack_uid}>`;
   // Notify attacker
   await respond(
-    `Your ${itemEmj} \`${item.name}\` dealt *${dmg} damage* to ${targetMention} and they have *${newHp} HP* remaining.`
+    `Your ${itemEmj} \`${item.name}\` dealt *${dmg} damage* to ${targetMention} and they have *${newHp} HP* remaining.`,
   );
 
-  // Notify target 
+  // Notify target
   const { WebClient } = require("@slack/web-api");
   const token = process.env.SLACK_BOT_TOKEN;
   const slackClient = new WebClient(token);

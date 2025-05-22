@@ -5,10 +5,7 @@ const { findItem } = require("../functions/item.js");
 const { itemEmoji } = require("../functions/itemEmoji.js");
 
 async function bal(slack_uid, newBalance) {
-  return await supabase
-    .from("users")
-    .update({ balance: newBalance })
-    .eq("slack_uid", slack_uid);
+  return await supabase.from("users").update({ balance: newBalance }).eq("slack_uid", slack_uid);
 }
 
 module.exports = async ({ respond, command }) => {
@@ -53,21 +50,14 @@ module.exports = async ({ respond, command }) => {
 
   if (!item.buy) {
     await respond({
-      text: `:red-x: ${itemEmoji(
-        item.name
-      )} \`${itemName}\` is not purchasable!`,
+      text: `:red-x: ${itemEmoji(item.name)} \`${itemName}\` is not purchasable!`,
     });
     return;
   }
   const totalCost = fixMoney(item.buy * qty);
   if (balance < totalCost) {
     await respond({
-      text: `:red-x: You do not have enough money to buy *${qty}* ${itemEmoji(
-        item.name
-      )} \`${item.name}\`. You need *${fixMoney(
-        totalCost,
-        true
-      )}*, you have *${fixMoney(balance, true)}*.`,
+      text: `:red-x: You do not have enough money to buy *${qty}* ${itemEmoji(item.name)} \`${item.name}\`. You need *${fixMoney(totalCost, true)}*, you have *${fixMoney(balance, true)}*.`,
     });
     return;
   }
@@ -75,11 +65,6 @@ module.exports = async ({ respond, command }) => {
   balance = fixMoney(balance - totalCost);
   await bal(slack_uid, balance);
   await respond({
-    text: `:okay-1: You bought *${qty}* ${itemEmoji(item.name)} \`${
-      item.name
-    }\` for *${fixMoney(totalCost, true)}*. New balance: *${fixMoney(
-      balance,
-      true
-    )}*`,
+    text: `:okay-1: You bought *${qty}* ${itemEmoji(item.name)} \`${item.name}\` for *${fixMoney(totalCost, true)}*. New balance: *${fixMoney(balance, true)}*`,
   });
 };
