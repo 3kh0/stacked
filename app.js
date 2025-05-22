@@ -8,6 +8,25 @@ const app = new App({
   signingSecret: process.env.SLACK_SIGNING_SECRET,
 });
 
+const http = require("http");
+
+http
+  .createServer((req, res) => {
+    const start = process.hrtime.bigint();
+    if (req.url === "/" && req.method === "GET") {
+      res.writeHead(200, { "Content-Type": "text/plain" });
+      res.end("OK", () => {
+        const end = process.hrtime.bigint();
+        const ms = Number(end - start) / 1e6;
+        console.log(`[healthcheck] responded in ${ms.toFixed(2)}ms`);
+      });
+    } else {
+      res.writeHead(404);
+      res.end();
+    }
+  })
+  .listen(3001);
+
 app.command("/stacked", async ({ command, ack, respond }) => {
   await ack();
   const args = command.text.trim().split(/\s+/);
