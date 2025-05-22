@@ -2,6 +2,8 @@
 
 Stacked is a economy game about collecting items, gambling, and using them to fight other players, all within Slack (Slack, where the work happens), powered by Supabase.
 
+Still in beta/a complete buggy mess, but actively improving.
+
 ## Getting Started
 
 - Node (duh)
