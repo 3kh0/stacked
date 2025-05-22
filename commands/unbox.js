@@ -1,4 +1,3 @@
-const supabase = require("../lib/supabase.js");
 const { drawTier } = require("../functions/drawTier.js");
 const { drawItem } = require("../functions/drawItem.js");
 const { itemEmoji } = require("../functions/itemEmoji.js");

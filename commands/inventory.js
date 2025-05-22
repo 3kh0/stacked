@@ -2,7 +2,7 @@ const supabase = require("../lib/supabase.js");
 const { findItem } = require("../functions/item.js");
 const { itemEmoji } = require("../functions/itemEmoji.js");
 
-module.exports = async ({ respond, command, client }) => {
+module.exports = async ({ respond, command }) => {
   let slack_uid = command.user_id;
   let lookup = false;
   const args = command.text ? command.text.trim().split(/\s+/) : [];

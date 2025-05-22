@@ -1,5 +1,4 @@
 const supabase = require("../lib/supabase.js");
-const items = require("../lib/items.js");
 const { itemEmoji } = require("./itemEmoji.js");
 const { fixTime } = require("./fix.js");
 

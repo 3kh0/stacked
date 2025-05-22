@@ -1,4 +1,3 @@
-const items = require("../lib/items.js");
 const { fixCurrency, fixTime } = require("../functions/fix.js");
 const { findItem } = require("../functions/item.js");
 const { itemEmoji } = require("../functions/itemEmoji.js");
