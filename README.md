@@ -38,6 +38,9 @@ Still in beta/a complete buggy mess, but actively improving.
       hp numeric NOT NULL DEFAULT '100'::numeric,
       opt_status boolean NOT NULL DEFAULT false,
       attack_cooldown numeric NULL,
+      hourly_cooldown numeric NULL,
+      daily_cooldown numeric NULL,
+      weekly_cooldown numeric NULL,
       CONSTRAINT users_pkey PRIMARY KEY (id),
       CONSTRAINT users_slack_uid_key UNIQUE (slack_uid)
    );
