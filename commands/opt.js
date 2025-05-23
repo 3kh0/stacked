@@ -30,7 +30,7 @@ module.exports = async ({ respond, command }) => {
 
   await respond({
     text: opt
-      ? ":stk_optin: You have *opted in* to attacking other players! But be careful, they can attack you too!\n\nIt is highly recommended that you add me as a VPN so I can notify you when you get attacked.\n\nYou can opt-out at any time by using `/stacked optout`."
+      ? ":stk_optin: You have *opted in* to attacking other players! But be careful, they can attack you too!\n\nIt is highly recommended that you add me as a VIP so I can notify you when you get attacked.\n\nYou can opt-out at any time by using `/stacked optout`."
       : ":stk_optout: You have *opted out* of attacks. You will not be able to attack other players, but you also won't be attacked.\n\nYou can opt-in at any time by using `/stacked optin`.",
   });
 };
