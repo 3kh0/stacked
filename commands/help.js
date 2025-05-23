@@ -18,7 +18,8 @@ module.exports = async ({ respond }) => {
             "• `/stacked welcome` — Get started and see onboarding info\n" +
             "• `/stacked unbox` — Open a hourly box for a random item\n" +
             "• `/stacked daily` — Get your daily reward\n" +
-            "• `/stacked weekly` — Get your weekly reward\n",
+            "• `/stacked weekly` — Get your weekly reward\n" +
+            "• `/stacked coinflip <amount> <heads|tails>` — Gamble with 50/50 odds of doubling your money\n",
         },
       },
       {
