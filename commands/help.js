@@ -19,7 +19,7 @@ module.exports = async ({ respond }) => {
             "• `/stacked unbox` — Open a hourly box for a random item\n" +
             "• `/stacked daily` — Get your daily reward\n" +
             "• `/stacked weekly` — Get your weekly reward\n" +
-            "• `/stacked coinflip <amount> <heads|tails>` — Gamble with 50/50 odds of doubling your money\n",
+            "• `/stacked coinflip <bet> <heads|tails>` — Gamble 50/50 odds of doubling your bet\n",
         },
       },
       {
@@ -28,7 +28,7 @@ module.exports = async ({ respond }) => {
           {
             type: "mrkdwn",
             text:
-              "These are not all commands, and some commands have shortcuts.\n" +
+              "These are not all the commands, and some commands have shortcuts.\n" +
               "For example, /stacked i is the same as /stacked inventory and /stacked a is the same as /stacked use\n" +
               "All the routes can be seen here: <https://github.com/3kh0/stacked/blob/main/app.js|app.js on GitHub>",
           },
