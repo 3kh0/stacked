@@ -48,7 +48,7 @@ module.exports = async ({ respond, command }) => {
       return;
     }
     await respond(
-      "Welcome to Stacked! :hii: Since this is your first time, here is what you need to know.\n\n - You can now use the `/stacked` command to interact with the game.\n - You can use `/stacked help` to check out the commands you can run.\nRemember to play fair and be kind to each other! Have fun!",
+      "Welcome to Stacked! :hii: Since this is your first time, I would recommend you to check out the tutorial by using `/stacked tutorial`.\n\nYou can also check out the commands you can run by using `/stacked help`.\n\nHave fun!",
     );
   } else {
     await respond(
