@@ -47,6 +47,8 @@ app.command("/stacked", async ({ command, ack, respond }) => {
   else if (["use", "a", "attack", "heal", "hit"].includes(subcommand)) route = "use";
   else if (["opt", "opt-in", "optin", "opt-out", "optout"].includes(subcommand)) route = "opt";
   else if (["help", "h", "?", "commands", "cmds"].includes(subcommand)) route = "help";
+  else if (["daily", "d", "day"].includes(subcommand)) route = "daily";
+  else if (["weekly", "w", "week"].includes(subcommand)) route = "weekly";
 
   // last ditch effort to match the command
   const commandPath = path.join(__dirname, "commands", `${route}.js`);
