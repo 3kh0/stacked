@@ -31,6 +31,7 @@ app.command("/stacked", async ({ command, ack, respond }) => {
   else if (["coinflip", "cf", "flip", "coin", "cflip", "gamba", "bet"].includes(subcommand)) route = "coinflip";
   else if (["value", "networth", "net", "val", "worth", "v"].includes(subcommand)) route = "value";
   else if (["leaderboard", "lb", "top"].includes(subcommand)) route = "leaderboard";
+  else if (["tutorial", "guide", "how", "learn"].includes(subcommand)) route = "tutorial";
 
   // last ditch effort to match the command
   const fs = require("fs");

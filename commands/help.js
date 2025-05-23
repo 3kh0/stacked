@@ -9,7 +9,7 @@ module.exports = async ({ respond }) => {
             "*Stacked: List of commands*\n" +
             "\n" +
             "• `/stacked help` — Show this help message\n" +
-            "• `/stacked inventory` — View your inventory\n" +
+            "• `/stacked inventory <user>` — View your inventory or someone else's\n" +
             "• `/stacked buy <item> <qty>` — Buy an item from the market\n" +
             "• `/stacked sell <item> <qty>` — Sell an item from your inventory\n" +
             "• `/stacked item <item>` — Inspect an item and see its stats\n" +
@@ -19,7 +19,10 @@ module.exports = async ({ respond }) => {
             "• `/stacked unbox` — Open a hourly box for a random item\n" +
             "• `/stacked daily` — Get your daily reward\n" +
             "• `/stacked weekly` — Get your weekly reward\n" +
-            "• `/stacked coinflip <bet> <heads|tails>` — Gamble 50/50 odds of doubling your bet\n",
+            "• `/stacked coinflip <bet> <heads|tails>` — Gamble 50/50 odds of doubling your bet\n" +
+            "• `/stacked value <user>` — View your net worth or someone else's\n" +
+            "• `/stacked leaderboard` — View the leaderboard\n" +
+            "• `/stacked tutorial` — View the tutorial\n",
         },
       },
       {
