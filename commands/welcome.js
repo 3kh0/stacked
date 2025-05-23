@@ -12,6 +12,8 @@ module.exports = async ({ respond, command }) => {
   }
 
   const allowlist = [
+    "U080A3QP42C",
+    "U08TBE25U82",
     "U066LL4JBDL",
     "U062U3SQ2T1",
     "U088DPHNEF8",
