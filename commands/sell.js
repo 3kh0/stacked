@@ -10,7 +10,9 @@ async function updateBalance(slack_uid, newBalance) {
 
 module.exports = async ({ respond, command }) => {
   const slack_uid = command.user_id;
-  const [itemName, qtyStr] = command.text.split(" ");
+  const parts = command.text.split(" ");
+  const itemName = parts[1];
+  const qtyStr = parts[2];
 
   if (!itemName) {
     await respond({ text: ":red-x: You need to pick what item to sell!" });
