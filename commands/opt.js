@@ -18,6 +18,26 @@ module.exports = async ({ respond, command }) => {
     return;
   }
 
+  const { data: userData, error: fetchError } = await supabase
+    .from("users")
+    .select("attack_cooldown")
+    .eq("slack_uid", slack_uid)
+    .single();
+  if (fetchError) {
+    await respond({
+      text: ":red-x: Something went horribly wrong. Please report this to 3kh0.",
+    });
+    return;
+  }
+  const now = Math.floor(Date.now() / 1000);
+  const cdu = userData?.attack_cooldown ? Number(userData.attack_cooldown) : null;
+  if (cdu && now < cdu) {
+    await respond({
+      text: `:red-x: You are currently on attack cooldown. You must wait until your cooldown expires before you can change your opt status.`,
+    });
+    return;
+  }
+
   const { error } = await supabase.from("users").update({ opt_status: opt }).eq("slack_uid", slack_uid);
 
   if (error) {
