@@ -4,8 +4,8 @@ const { addItems } = require("../functions/inventory.js");
 const { findItem } = require("../functions/item.js");
 const { itemEmoji } = require("../functions/itemEmoji.js");
 
-async function bal(slack_uid, newBalance) {
-  return await supabase.from("users").update({ balance: newBalance }).eq("slack_uid", slack_uid);
+async function bal(slack_uid, bal) {
+  return await supabase.from("users").update({ balance: bal }).eq("slack_uid", slack_uid);
 }
 
 module.exports = async ({ respond, command }) => {
@@ -21,6 +21,7 @@ module.exports = async ({ respond, command }) => {
 
   let qty = 1;
   if (qtyStr) {
+    // buy <item> <qty>
     if (qtyStr.startsWith("x") && !isNaN(parseInt(qtyStr.slice(1), 10))) {
       qty = Math.max(1, parseInt(qtyStr.slice(1), 10));
     } else if (!isNaN(parseInt(qtyStr, 10))) {
@@ -43,7 +44,7 @@ module.exports = async ({ respond, command }) => {
 
   if (error || !user) {
     await respond({
-      text: ":red-x: Could not fetch your user data. Are you registered?",
+      text: ":red-x: Please register first! Use `/stacked welcome` to get started.",
     });
     return;
   }
