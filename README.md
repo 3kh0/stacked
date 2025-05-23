@@ -47,7 +47,11 @@ Still in beta/a complete buggy mess, but actively improving.
    ```
 
 5. Nab all the emojis, they will be added to the repo in due time™ If you are already in the Hack Club Slack, the emojis are already there and no further action is needed from you.
-6. Start the bot:
+6. Make sure you add a slash command to your Slack bot. Here is the recommended configuration. Make sure you have escape names and channels selected.
+
+   ![image](https://github.com/user-attachments/assets/49d5963b-225c-47cc-8e9d-0dd9392ff6e4)
+
+7. Start the bot:
 
    ```sh
    pnpm start
