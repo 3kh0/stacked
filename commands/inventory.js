@@ -19,7 +19,7 @@ module.exports = async ({ respond, command }) => {
       lookup = true;
     } else {
       await respond({
-        text: ":red-x: Please provide a user to look up in the format `<@U1234>` or `U1234`.",
+        text: ":red-x: Please just ping the user you want to look up, eg. `/stacked inventory @user`.",
       });
       return;
     }
@@ -33,7 +33,7 @@ module.exports = async ({ respond, command }) => {
 
   if (error || !user) {
     await respond({
-      text: ":red-x: That user does not exist in the database.",
+      text: ":red-x: That user does not exist in the database, they might not have used the bot yet.",
     });
     return;
   }

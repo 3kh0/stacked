@@ -41,9 +41,9 @@ module.exports = async ({ respond, command }) => {
   const { error } = await supabase.from("users").update({ opt_status: opt }).eq("slack_uid", slack_uid);
 
   if (error) {
-    console.error("Error updating opt status:", error);
+    console.error("error on update opt:", error);
     await respond({
-      text: ":red-x: Hrm, that did not work, give it another go?.",
+      text: ":red-x: Something went horribly wrong. Please report this to 3kh0.",
     });
     return;
   }

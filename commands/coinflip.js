@@ -10,14 +10,14 @@ function parseBet(args) {
   return { amount, side };
 }
 
-async function getBalance(slack_uid) {
+async function get(slack_uid) {
   const { data, error } = await supabase.from("users").select("balance").eq("slack_uid", slack_uid).single();
   if (error) return { error };
   return { balance: data?.balance || 0 };
 }
 
-async function setBalance(slack_uid, newBalance) {
-  return await supabase.from("users").update({ balance: newBalance }).eq("slack_uid", slack_uid);
+async function set(slack_uid, bal) {
+  return await supabase.from("users").update({ balance: bal }).eq("slack_uid", slack_uid);
 }
 
 module.exports = async ({ respond, command }) => {
@@ -29,26 +29,28 @@ module.exports = async ({ respond, command }) => {
     return;
   }
   const { amount, side } = bet;
-  const { balance, error } = await getBalance(slack_uid);
+  const { balance, error } = await get(slack_uid);
   if (error) {
-    await respond(":red-x: Something went really wrong. Please try again later.");
+    await respond(":red-x: Something went horribly wrong. Please report this to 3kh0.");
     return;
   }
   if (balance < amount) {
-    await respond(":red-x: You do not have enough money to place this bet. You only have: *" + fixCurrency(balance) + "*");
+    await respond(
+      ":red-x: You do not have enough money to place this bet. You only have: *" + fixCurrency(balance) + "*",
+    );
     return;
   }
 
   const flip = Math.random() < 0.5 ? "heads" : "tails";
-  let resultMsg = `:coin-mario: The coin landed on *${flip}* and you had bet on *${side}*.`;
+  let result = `:coin-mario: The coin landed on *${flip}* and you had bet on *${side}*.`;
   if (flip === side) {
-    const newBalance = balance + amount;
-    await setBalance(slack_uid, newBalance);
-    resultMsg += `\n:yay: You won *${fixCurrency(amount)}*! You now have: *${fixCurrency(newBalance)}*.`;
+    const bal = balance + amount;
+    await set(slack_uid, bal);
+    result += `\n:yay: You won *${fixCurrency(amount)}*! You now have: *${fixCurrency(bal)}*.`;
   } else {
-    const newBalance = balance - amount;
-    await setBalance(slack_uid, newBalance);
-    resultMsg += `\n:heavysob: You lost *${fixCurrency(amount)}*. You now have: *${fixCurrency(newBalance)}*.`;
+    const bal = balance - amount;
+    await set(slack_uid, bal);
+    result += `\n:heavysob: You lost *${fixCurrency(amount)}*. You now have: *${fixCurrency(bal)}*.`;
   }
-  await respond(resultMsg);
+  await respond(result);
 };

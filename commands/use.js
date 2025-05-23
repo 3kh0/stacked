@@ -29,7 +29,7 @@ module.exports = async function useCommand({ args, respond, command }) {
     .eq("slack_uid", slack_uid)
     .single();
   if (error || !user) {
-    await respond(":red-x: User not found in database.");
+    await respond(":red-x: Please register first! Use `/stacked welcome` to get started.");
     return;
   }
   const inv = await getInv(slack_uid);
