@@ -31,17 +31,16 @@ Still in beta/a complete buggy mess, but actively improving.
 
    ```sql
    CREATE TABLE public.users (
-      id uuid NOT NULL DEFAULT gen_random_uuid(),
       slack_uid text NOT NULL,
       inventory jsonb NULL DEFAULT '[]'::jsonb,
       balance numeric NOT NULL DEFAULT '0'::numeric,
       hp numeric NOT NULL DEFAULT '100'::numeric,
       opt_status boolean NOT NULL DEFAULT false,
       attack_cooldown numeric NULL,
-      hourly_cooldown numeric NULL,
       daily_cooldown numeric NULL,
       weekly_cooldown numeric NULL,
-      CONSTRAINT users_pkey PRIMARY KEY (id),
+      hourly_cooldown numeric NULL,
+      CONSTRAINT users_pkey PRIMARY KEY (slack_uid),
       CONSTRAINT users_slack_uid_key UNIQUE (slack_uid)
    );
    ```
