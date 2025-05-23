@@ -50,6 +50,7 @@ module.exports = async ({ respond, command }) => {
     epic: ":stk_epic_e::stk_epic_p::stk_epic_i::stk_epic_c:",
   };
   const itemObj = findItem(item);
+  console.log("[unbox] claimed by", slack_uid, "item:", item, "tier:", itemObj.tier);
   const tier = itemObj ? itemObj.tier : "common";
   await respond(
     `You just unboxed a ${labels[tier] || tier} ${itemEmoji(item)} *${item}*! You may use this command again *in a hour* try to get a better item!`,

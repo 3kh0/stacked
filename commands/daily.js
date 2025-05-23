@@ -37,6 +37,7 @@ module.exports = async ({ respond, command }) => {
   let item = "rare_box";
   let qty = 1;
   const roll = Math.random();
+  console.log("[daily] claimed by", slack_uid, "roll:", roll);
   if (roll < 0.01) {
     item = "ultra_rare_box";
     qty = 1;
