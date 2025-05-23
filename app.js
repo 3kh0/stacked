@@ -52,17 +52,34 @@ app.command("/stacked", async ({ command, ack, respond }) => {
 
 const placeValue = require("./functions/placeValue.js");
 setInterval(
-  () => {
-    placeValue().catch((e) => console.error("[placeValue] error:", e));
+  async () => {
+    const start = process.hrtime.bigint();
+    try {
+      await placeValue();
+      const end = process.hrtime.bigint();
+      const ms = Number(end - start) / 1e6;
+      console.log(`[placeValue] complete in ${ms.toFixed(2)}ms`);
+    } catch (e) {
+      console.error("[placeValue] error:", e);
+    }
   },
   10 * 60 * 1000,
 ); // 10 min
 
 // startup
-placeValue()
-  .then(() => console.log("[placeValue] updated"))
-  .catch((e) => console.error("[placeValue] error:", e));
+(async () => {
+  const start = process.hrtime.bigint();
+  try {
+    await placeValue();
+    const end = process.hrtime.bigint();
+    const ms = Number(end - start) / 1e6;
+    console.log(`[placeValue] complete in ${ms.toFixed(2)}ms`);
+  } catch (e) {
+    console.error("[placeValue] error:", e);
+  }
+})();
 
+// healthcheck
 const http = require("http");
 
 http
