@@ -46,7 +46,7 @@ module.exports = async function attack({ user, item, respond }) {
   // 2 find valid targets
   const { data: users, error } = await supabase
     .from("users")
-    .select("id, slack_uid, hp, inventory, opt_status")
+    .select("slack_uid, hp, inventory, opt_status")
     .eq("opt_status", true);
   if (error || !users || users.length < 2) {
     await respond(":red-x: No valid targets found for attack.");
@@ -108,12 +108,12 @@ module.exports = async function attack({ user, item, respond }) {
     // Fetch full victim and killer user objects (with id, inventory, balance)
     const { data: victimUser } = await supabase
       .from("users")
-      .select("id, slack_uid, inventory, balance")
+      .select("slack_uid, inventory, balance")
       .eq("slack_uid", target.slack_uid)
       .single();
     const { data: killerUser } = await supabase
       .from("users")
-      .select("id, slack_uid, inventory, balance")
+      .select("slack_uid, inventory, balance")
       .eq("slack_uid", user.slack_uid)
       .single();
     // Run looting

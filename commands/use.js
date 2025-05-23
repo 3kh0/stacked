@@ -23,11 +23,7 @@ module.exports = async function useCommand({ args, respond, command }) {
   }
 
   const slack_uid = command.user_id;
-  let { data: user, error } = await supabase
-    .from("users")
-    .select("id, hp, slack_uid")
-    .eq("slack_uid", slack_uid)
-    .single();
+  let { data: user, error } = await supabase.from("users").select("hp, slack_uid").eq("slack_uid", slack_uid).single();
   if (error || !user) {
     await respond(":red-x: Please register first! Use `/stacked welcome` to get started.");
     return;

@@ -2,7 +2,7 @@ const supabase = require("../lib/supabase.js");
 
 module.exports = async ({ respond, command }) => {
   const slack_uid = command.user_id;
-  const { data: user, error } = await supabase.from("users").select("id").eq("slack_uid", slack_uid).single();
+  const { data: user, error } = await supabase.from("users").select("slack_uid").eq("slack_uid", slack_uid).single();
 
   // PGRST116 no rows returned
   if (error && error.code !== "PGRST116") {

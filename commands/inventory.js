@@ -27,7 +27,7 @@ module.exports = async ({ respond, command }) => {
 
   let { data: user, error } = await supabase
     .from("users")
-    .select("id, inventory, balance, hp, opt_status")
+    .select("inventory, balance, hp, opt_status")
     .eq("slack_uid", slack_uid)
     .single();
 
