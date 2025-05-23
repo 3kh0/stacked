@@ -1,6 +1,7 @@
 const supabase = require("../lib/supabase.js");
 const { itemEmoji } = require("../functions/itemEmoji.js");
 const { getInv, addItems, takeItems } = require("../functions/inventory.js");
+const { fixCurrency } = require("../functions/fix.js");
 const { findItem } = require("../functions/item.js");
 const { drawTier } = require("../functions/drawTier.js");
 const { drawItem } = require("../functions/drawItem.js");
@@ -89,13 +90,17 @@ module.exports = async function useCommand({ args, respond, command }) {
   // Handle money items
   // =================
   if (target.type === "money") {
+    function r(min, max) {
+      // needed for 2 decimal places
+      return Math.round((Math.random() * (max - min) + min) * 100) / 100;
+    }
     const idx = inv.findIndex((i) => i.item === target.name);
     if (idx === -1 || inv[idx].qty < 1) {
       await respond(`:red-x: You do not have any ${itemEmoji(target.name)} \`${target.name}\` to use.`);
       return;
     }
     await takeItems(slack_uid, { item: target.name, qty: 1 });
-    const found = randomInt(target.money.min, target.money.max);
+    const found = r(target.money.min, target.money.max);
     let { data: userData, error: balError } = await supabase
       .from("users")
       .select("balance")
@@ -107,7 +112,9 @@ module.exports = async function useCommand({ args, respond, command }) {
     }
     const newBalance = (userData.balance || 0) + found;
     await supabase.from("users").update({ balance: newBalance }).eq("slack_uid", slack_uid);
-    await respond(`You found *$${found.toFixed(2)}* in your ${itemEmoji(target.name)} \`${target.name}\` and now have *$${newBalance.toFixed(2)}*!`);
+    await respond(
+      `You found *${fixCurrency(found)}* in your ${itemEmoji(target.name)} \`${target.name}\` and now have *${fixCurrency(newBalance)}*!`,
+    );
     return;
   }
 

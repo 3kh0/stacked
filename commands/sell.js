@@ -10,7 +10,7 @@ async function updateBalance(slack_uid, newBalance) {
 
 module.exports = async ({ respond, command }) => {
   const slack_uid = command.user_id;
-  const [_, itemName, qtyStr] = command.text.split(" ");
+  const [itemName, qtyStr] = command.text.split(" ");
 
   if (!itemName) {
     await respond({ text: ":red-x: You need to pick what item to sell!" });
@@ -42,7 +42,7 @@ module.exports = async ({ respond, command }) => {
 
   if (error || !user) {
     await respond({
-      text: "Could not fetch your user data. Are you registered?",
+      text: ":red-x: Could not fetch your user data. Are you registered?",
     });
     return;
   }
@@ -51,7 +51,7 @@ module.exports = async ({ respond, command }) => {
 
   if (!item.sell) {
     await respond({
-      text: `:red-x: ${itemEmoji(item.name)} \`${itemName}\` is not sellable!`,
+      text: `:red-x: ${itemEmoji(item.name)} \`${itemName}\` is not a sellable item!`,
     });
     return;
   }
@@ -59,7 +59,7 @@ module.exports = async ({ respond, command }) => {
   const idx = inventory.findIndex((i) => i.item === item.name);
   if (idx === -1 || inventory[idx].qty < qty) {
     await respond({
-      text: `:red-x: You do not have enough ${itemEmoji(item.name)} \`${item.name}\` to sell. You have *${inventory[idx]?.qty || 0}* and you want to sell *${qty}*.`,
+      text: `:red-x: You do not have enough ${itemEmoji(item.name)} \`${item.name}\` to sell! You have *${inventory[idx]?.qty || 0}* and you want to sell *${qty}*.`,
     });
     return;
   }
@@ -68,6 +68,6 @@ module.exports = async ({ respond, command }) => {
   balance = fixMoney(balance + totalGain);
   await updateBalance(slack_uid, balance);
   await respond({
-    text: `:okay-1: You sold *${qty}* ${itemEmoji(item.name)} \`${item.name}\` for *${fixMoney(totalGain, true)}*. New balance: *${fixMoney(balance, true)}*`,
+    text: `:okay-1: You sold *${qty}* ${itemEmoji(item.name)} \`${item.name}\` for *${fixMoney(totalGain, true)}* and you now have *${fixMoney(balance, true)}*`,
   });
 };
