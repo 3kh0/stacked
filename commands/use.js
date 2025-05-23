@@ -86,6 +86,32 @@ module.exports = async function useCommand({ args, respond, command }) {
   }
 
   // =================
+  // Handle money items
+  // =================
+  if (target.type === "money") {
+    const idx = inv.findIndex((i) => i.item === target.name);
+    if (idx === -1 || inv[idx].qty < 1) {
+      await respond(`:red-x: You do not have any ${itemEmoji(target.name)} \`${target.name}\` to use.`);
+      return;
+    }
+    await takeItems(slack_uid, { item: target.name, qty: 1 });
+    const found = randomInt(target.money.min, target.money.max);
+    let { data: userData, error: balError } = await supabase
+      .from("users")
+      .select("balance")
+      .eq("slack_uid", slack_uid)
+      .single();
+    if (balError || !userData) {
+      await respond(":red-x: Could not update your balance. Please try again later.");
+      return;
+    }
+    const newBalance = (userData.balance || 0) + found;
+    await supabase.from("users").update({ balance: newBalance }).eq("slack_uid", slack_uid);
+    await respond(`You found *$${found.toFixed(2)}* in your ${itemEmoji(target.name)} \`${target.name}\` and now have *$${newBalance.toFixed(2)}*!`);
+    return;
+  }
+
+  // =================
   // Handle attack items
   // =================
   if (target.type === "melee" || target.type === "firearm") {
