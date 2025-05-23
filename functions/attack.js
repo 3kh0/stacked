@@ -21,11 +21,12 @@ module.exports = async function attack({ user, item, respond }) {
   // 1 check cooldown
   const { data: fUser, error: fetchError } = await supabase
     .from("users")
-    .select("attack_cooldown")
+    .select("attack_cooldown, hp")
     .eq("slack_uid", user.slack_uid)
     .single();
   if (fetchError) {
-    await respond(":red-x: Could not check your cooldown. Please try again later.");
+    console.error(`Error fetching user ${user.slack_uid} for attack:`, fetchError);
+    await respond(":red-x: Something went horribly wrong. Please report this to 3kh0.");
     return;
   }
   const cdu = fUser?.attack_cooldown ? Number(fUser.attack_cooldown) : null;
@@ -34,6 +35,11 @@ module.exports = async function attack({ user, item, respond }) {
     await respond(
       `:red-x: Woah there, you are on cooldown! You can attack again in *${tl}*. Each weapon has a different cooldown time, you can check this by using \`/stacked item <item_name>\`.`,
     );
+    return;
+  }
+  if (fUser?.hp !== undefined && fUser.hp <= 0) {
+    console.error(`User ${user.slack_uid} is dead and tried to attack.`);
+    await respond(":red-x: Something went horribly wrong. Please report this to 3kh0.");
     return;
   }
 
@@ -46,7 +52,7 @@ module.exports = async function attack({ user, item, respond }) {
     await respond(":red-x: No valid targets found for attack.");
     return;
   }
-  const targets = users.filter((u) => u.slack_uid !== user.slack_uid);
+  const targets = users.filter((u) => u.slack_uid !== user.slack_uid && (u.hp ?? 100) > 0);
   if (targets.length === 0) {
     await respond(":red-x: No valid targets found for attack.");
     return;
@@ -60,7 +66,9 @@ module.exports = async function attack({ user, item, respond }) {
   if (weapon.type === "firearm") {
     const inv = await getInv(attacker);
     if (inv.findIndex((i) => i.item === weapon.ammo && i.qty > 0) === -1) {
-      await respond(`:red-x: You need at least 1 ${itemEmoji(String(weapon.ammo))} \`${weapon.ammo}\` to use this weapon!`);
+      await respond(
+        `:red-x: You need at least 1 ${itemEmoji(String(weapon.ammo))} \`${weapon.ammo}\` to use this weapon!`,
+      );
       return;
     }
     await takeItems(attacker, { item: weapon.ammo, qty: 1 });
@@ -79,6 +87,11 @@ module.exports = async function attack({ user, item, respond }) {
   // 6 do damage
   const newHp = Math.max(0, (target.hp ?? 100) - dmg);
   await supabase.from("users").update({ hp: newHp }).eq("slack_uid", target.slack_uid);
+  // cooldown (only after successful attack)
+  await supabase
+    .from("users")
+    .update({ attack_cooldown: now + weapon.cooldown })
+    .eq("slack_uid", user.slack_uid);
 
   // 7 notify on attack
   const { WebClient } = require("@slack/web-api");
@@ -91,16 +104,46 @@ module.exports = async function attack({ user, item, respond }) {
 
   // 8 check if dead and loot
   if (newHp === 0) {
-    // TODO: looting
-    await respond(`:skull: <@${target.slack_uid}> was killed!`);
+    const { lootUser, lootBlock } = require("./looting.js");
+    // Fetch full victim and killer user objects (with id, inventory, balance)
+    const { data: victimUser } = await supabase
+      .from("users")
+      .select("id, slack_uid, inventory, balance")
+      .eq("slack_uid", target.slack_uid)
+      .single();
+    const { data: killerUser } = await supabase
+      .from("users")
+      .select("id, slack_uid, inventory, balance")
+      .eq("slack_uid", user.slack_uid)
+      .single();
+    // Run looting
+    const lootResult = lootUser(victimUser, killerUser);
+    // Update both users in DB
+    await supabase
+      .from("users")
+      .update({ balance: lootResult.updatedVictim.balance, opt_status: false, hp: 100 })
+      .eq("slack_uid", target.slack_uid);
+    await supabase.from("users").update({ balance: lootResult.updatedKiller.balance }).eq("slack_uid", user.slack_uid);
+    const blocks = lootBlock({
+      killer: killerUser,
+      victim: victimUser,
+      weapon,
+      summary: lootResult.summary,
+      money: lootResult.money,
+    });
+    await respond({ blocks });
+    await respond({
+      text: `:skull: You killed <@${target.slack_uid}> with ${itemEmoji(weapon.name)} \`${weapon.name}\` and looted their inventory!`,
+    });
+    await sc.chat.postMessage({
+      channel: dm.channel.id,
+      blocks,
+      text: `You were killed by <@${user.slack_uid}> and looted!`,
+    });
+  } else {
+    // not kill, still notify
+    await respond({
+      text: `You attacked <@${target.slack_uid}> with ${itemEmoji(weapon.name)} \`${weapon.name}\` and dealt *${dmg} damage*, leaving them with *${newHp} HP* remaining.`,
+    });
   }
-
-  // 9 set cooldown
-  await supabase
-    .from("users")
-    .update({ attack_cooldown: now + weapon.cooldown })
-    .eq("slack_uid", user.slack_uid);
-  await respond(
-    `Your ${itemEmoji(weapon.name)} \`${weapon.name}\` dealt *${dmg} damage* to ${`<@${target.slack_uid}>`} and they have *${newHp} HP* remaining.`,
-  );
 };
