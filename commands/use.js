@@ -45,7 +45,7 @@ module.exports = async function useCommand({ args, respond, command }) {
         ":stk_uncommon_u::stk_uncommon_n::stk_uncommon_c::stk_uncommon_o::stk_uncommon_m::stk_uncommon_m::stk_uncommon_o::stk_uncommon_n:",
       rare: ":stk_rare_r::stk_rare_a::stk_rare_r::stk_rare_e:",
       ultra_rare:
-        ":stk_ultrarare_u::stk_ultrarare_l::stk_ultrarare_t::stk_ultrarare_r::stk_ultrarare_a: :stk_ultrarare_r::stk_ultrarare_a::stk_ultrarare_r::stk_ultrarare_e:",
+        ":stk_ultrarare_u::stk_ultrarare_l::stk_ultrarare_t::stk_ultrarare_r::stk_ultrarare_a:   :stk_ultrarare_r::stk_ultrarare_a::stk_ultrarare_r::stk_ultrarare_e:",
       epic: ":stk_epic_e::stk_epic_p::stk_epic_i::stk_epic_c:",
     };
     await takeItems(slack_uid, { item: target.name, qty: 1 });
