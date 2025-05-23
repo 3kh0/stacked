@@ -30,6 +30,7 @@ app.command("/stacked", async ({ command, ack, respond }) => {
   else if (["weekly", "w", "week"].includes(subcommand)) route = "weekly";
   else if (["coinflip", "cf", "flip", "coin", "cflip", "gamba", "bet"].includes(subcommand)) route = "coinflip";
   else if (["value", "networth", "net", "val", "worth", "v"].includes(subcommand)) route = "value";
+  else if (["leaderboard", "lb", "top"].includes(subcommand)) route = "leaderboard";
 
   // last ditch effort to match the command
   const fs = require("fs");
@@ -47,6 +48,19 @@ app.command("/stacked", async ({ command, ack, respond }) => {
     await respond(":red-x: No sub-command found! If you are lost, try `/stacked help` for a list of commands.");
   }
 });
+
+const placeValue = require("./functions/placeValue.js");
+setInterval(
+  () => {
+    placeValue().catch((e) => console.error("[placeValue] error:", e));
+  },
+  10 * 60 * 1000,
+); // 10 min
+
+// startup
+placeValue()
+  .then(() => console.log("[placeValue] updated"))
+  .catch((e) => console.error("[placeValue] error:", e));
 
 const http = require("http");
 
