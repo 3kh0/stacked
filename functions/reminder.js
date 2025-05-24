@@ -23,15 +23,18 @@ async function check() {
   for (const user of users) {
     for (const cd of CDS) {
       const expires = user[cd.key];
-      if (expires && now > expires) {
-        try {
-          await app.client.chat.postMessage({
-            channel: user.slack_uid,
-            text: `:yay: Your *${cd.label} cooldown* has expired! You can now use it again!`,
-          });
-        } catch (e) {
-          console.error(`[reminder] fail on dm ${user.slack_uid}:`, e.data?.error || e.message);
-        }
+      if (!expires || now <= expires) continue;
+      try {
+        await app.client.chat.postMessage({
+          channel: user.slack_uid,
+          text: `:yay: Your *${cd.label} cooldown* has expired! You can now use it again!`,
+        });
+        await supabase
+          .from("users")
+          .update({ [cd.key]: null })
+          .eq("slack_uid", user.slack_uid);
+      } catch (e) {
+        console.error(`[reminder] fail on dm ${user.slack_uid}:`, e.data?.error || e.message);
       }
     }
   }
