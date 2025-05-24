@@ -32,6 +32,7 @@ module.exports = async ({ respond, command }) => {
     "U071JHBEJ7R",
     "U082RFNDVKQ",
     "U04KNK837S4",
+    "U07L45W79E1",
   ];
   if (!allowlist.includes(slack_uid)) {
     await respond(
