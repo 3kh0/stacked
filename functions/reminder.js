@@ -23,7 +23,15 @@ async function check() {
   for (const user of users) {
     for (const cd of CDS) {
       const expires = user[cd.key];
-      if (!expires || now <= expires) continue;
+      if (
+        typeof expires !== "number" ||
+        !Number.isFinite(expires) ||
+        expires === null ||
+        expires === undefined ||
+        expires > now
+      ) {
+        continue;
+      }
       try {
         await app.client.chat.postMessage({
           channel: user.slack_uid,
