@@ -53,6 +53,8 @@ app.command("/stacked", async ({ command, ack, respond }) => {
 const placeValue = require("./functions/placeValue.js");
 placeValue();
 
+require("./functions/reminder.js"); // cooldown reminders
+
 // healthcheck
 const http = require("http");
 
