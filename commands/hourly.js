@@ -30,6 +30,7 @@ module.exports = async ({ respond, command }) => {
   const { cooldown, error } = await check(slack_uid);
   if (error) {
     await respond(":red-x: Something went horribly wrong. Please report this to 3kh0.");
+    console.error("error on user: ", error);
     return;
   }
   if (cooldown > 0) {
