@@ -24,9 +24,15 @@ module.exports = async ({ respond, command }) => {
     .eq("slack_uid", slack_uid)
     .single();
   if (fetchError) {
-    await respond({
-      text: ":red-x: Something went horribly wrong. Please report this to 3kh0.",
-    });
+    if (fetchError.code === "PGRST116") {
+      await respond({
+        text: ":red-x: You are not registered! Please run `/stacked start` to begin playing.",
+      });
+    } else {
+      await respond({
+        text: ":red-x: Something went horribly wrong. Please report this to 3kh0.",
+      });
+    }
     return;
   }
   const now = Math.floor(Date.now() / 1000);

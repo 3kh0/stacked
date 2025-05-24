@@ -44,7 +44,7 @@ module.exports = async ({ respond, command }) => {
 
   if (error || !user) {
     await respond({
-      text: ":red-x: Please register first! Use `/stacked welcome` to get started.",
+      text: ":red-x: You are not registered! Please run `/stacked start` to begin playing.",
     });
     return;
   }

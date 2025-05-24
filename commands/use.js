@@ -25,7 +25,7 @@ module.exports = async function useCommand({ args, respond, command }) {
   const slack_uid = command.user_id;
   let { data: user, error } = await supabase.from("users").select("hp, slack_uid").eq("slack_uid", slack_uid).single();
   if (error || !user) {
-    await respond(":red-x: Please register first! Use `/stacked welcome` to get started.");
+    await respond(":red-x: You are not registered! Please run `/stacked start` to begin playing.");
     return;
   }
   const inv = await getInv(slack_uid);

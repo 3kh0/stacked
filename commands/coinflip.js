@@ -31,7 +31,11 @@ module.exports = async ({ respond, command }) => {
   const { amount, side } = bet;
   const { balance, error } = await get(slack_uid);
   if (error) {
-    await respond(":red-x: Something went horribly wrong. Please report this to 3kh0.");
+    if (error.code === "PGRST116") {
+      await respond(":red-x: You are not registered! Please run `/stacked start` to begin playing.");
+    } else {
+      await respond(":red-x: Something went horribly wrong. Please report this to 3kh0.");
+    }
     return;
   }
   if (balance < amount) {
