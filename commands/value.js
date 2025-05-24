@@ -31,9 +31,15 @@ module.exports = async ({ respond, command }) => {
     .single();
 
   if (error || !user) {
-    await respond({
-      text: ":red-x: That user does not exist in the database, they might not have used the bot yet.",
-    });
+    if (slack_uid === command.user_id) {
+      await respond({
+        text: ":red-x: You are not registered! Please run `/stacked start` to begin playing.",
+      });
+    } else {
+      await respond({
+        text: ":red-x: That user does not exist in the database, they might not have used the bot yet.",
+      });
+    }
     return;
   }
 
