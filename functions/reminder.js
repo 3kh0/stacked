@@ -49,6 +49,6 @@ async function check() {
 }
 
 // startup
-check();
+//check();
 // 1 min
-setInterval(check, 60 * 1000);
+//setInterval(check, 60 * 1000);
