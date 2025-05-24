@@ -5,7 +5,7 @@ function parseBet(args) {
   if (!args || args.length < 2) return null;
   const amount = parseInt(args[0].replace(/,/g, ""), 10);
   const side = args[1]?.toLowerCase();
-  if (!amount || amount < 100) return null;
+  if (!amount || amount < 1) return null;
   if (side !== "heads" && side !== "tails") return null;
   return { amount, side };
 }
