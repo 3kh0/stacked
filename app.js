@@ -18,7 +18,6 @@ app.command("/stacked", async ({ command, ack, respond }) => {
 
   // define real routes, TODO add aliases
   if (["inventory", "inv", "i", "in"].includes(subcommand)) route = "inventory";
-  else if (["unbox", "open", "u", "ub", "unb", "hourly", "un", "h"].includes(subcommand)) route = "unbox";
   else if (["sell", "s", "sl"].includes(subcommand)) route = "sell";
   else if (["buy", "b", "bu", "purchase"].includes(subcommand)) route = "buy";
   else if (["welcome", "start", "onboard"].includes(subcommand)) route = "welcome";
@@ -26,6 +25,7 @@ app.command("/stacked", async ({ command, ack, respond }) => {
   else if (["use", "a", "attack", "heal", "hit"].includes(subcommand)) route = "use";
   else if (["opt", "opt-in", "optin", "opt-out", "optout"].includes(subcommand)) route = "opt";
   else if (["help", "h", "?", "commands", "cmds"].includes(subcommand)) route = "help";
+  else if (["hourly", "hly", "h", "hour"].includes(subcommand)) route = "hourly";
   else if (["daily", "d", "day"].includes(subcommand)) route = "daily";
   else if (["weekly", "w", "week"].includes(subcommand)) route = "weekly";
   else if (["coinflip", "cf", "flip", "coin", "cflip", "gamba", "bet"].includes(subcommand)) route = "coinflip";

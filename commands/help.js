@@ -16,7 +16,7 @@ module.exports = async ({ respond }) => {
             "• `/stacked use <item>` — Use an item (attack, heal, etc.)\n" +
             "• `/stacked opt` — Opt in or out to PvP\n" +
             "• `/stacked welcome` — Get started and see onboarding info\n" +
-            "• `/stacked unbox` — Open a hourly box for a random item\n" +
+            "• `/stacked hourly` — Open a hourly box for a random item\n" +
             "• `/stacked daily` — Get your daily reward\n" +
             "• `/stacked weekly` — Get your weekly reward\n" +
             "• `/stacked coinflip <bet> <heads|tails>` — Gamble 50/50 odds of doubling your bet\n" +

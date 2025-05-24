@@ -13,7 +13,7 @@ module.exports = async ({ respond }) => {
             ":stk_rock: *Items*\n" +
             "- Items are the things in your inventory. You can check your inventory at any time by running `/stacked inventory`.\n" +
             "- Each item has a rarity. Rarities range from Common, Uncommon, Rare, Ultra Rare, and Epic.\n" +
-            "- You can obtain items by claiming your hourly, daily, and weekly drops by running their respective commands: `/stacked unbox`, `/stacked daily`, or `/stacked weekly`.\n" +
+            "- You can obtain items by claiming your hourly, daily, and weekly drops by running their respective commands: `/stacked hourly`, `/stacked daily`, or `/stacked weekly`.\n" +
             "- To learn more about an item, run `/stacked info <item>` to get a description of the item.\n",
         },
       },
