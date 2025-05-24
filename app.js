@@ -84,14 +84,9 @@ const http = require("http");
 
 http
   .createServer((req, res) => {
-    const start = process.hrtime.bigint();
     if (req.url === "/" && req.method === "GET") {
       res.writeHead(200, { "Content-Type": "text/plain" });
-      res.end("OK", () => {
-        const end = process.hrtime.bigint();
-        const ms = Number(end - start) / 1e6;
-        console.log(`[healthcheck] responded in ${ms.toFixed(2)}ms`);
-      });
+      res.end("OK", () => {});
     } else {
       res.writeHead(404);
       res.end();
