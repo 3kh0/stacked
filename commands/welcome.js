@@ -54,8 +54,10 @@ module.exports = async ({ respond, command }) => {
       await respond(`:red-x: Something went horribly wrong. Please report this to 3kh0.`);
       return;
     }
+    const { addItems } = require("../functions/inventory.js");
+    await addItems(slack_uid, { item: "common_box", qty: 10 });
     await respond(
-      "Welcome to Stacked! :hii: Since this is your first time, I would recommend you to check out the tutorial by using `/stacked tutorial`.\n\nYou can also check out the commands you can run by using `/stacked help`.\n\nHave fun!",
+      "Welcome to Stacked! :hii: Since this is your first time, I would recommend you to check out the tutorial by using `/stacked tutorial`.\n\nYou can also check out the commands you can run by using `/stacked help`.\n\nI have given you 10 :stk_common_box: common boxes to start with. Have fun unboxing! :ohneheart:",
     );
   } else {
     await respond(
