@@ -31,3 +31,20 @@ module.exports = async function placeValue() {
     await supabase.from("value_leaderboard").upsert(updates, { onConflict: ["slack_uid"] });
   }
 };
+
+async function loop() {
+  const start = process.hrtime.bigint();
+  try {
+    await module.exports();
+    const end = process.hrtime.bigint();
+    const ms = Number(end - start) / 1e6;
+    console.log(`[placeValue] complete in ${ms.toFixed(2)}ms`);
+  } catch (e) {
+    console.error("[placeValue] error:", e);
+  }
+}
+
+// startup
+loop();
+// 10 min
+setInterval(loop, 10 * 60 * 1000);
