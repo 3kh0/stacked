@@ -26,7 +26,7 @@ module.exports = async function placeValue() {
   const updates = [];
   for (const user of users) {
     const value = await calc(user);
-    updates.push({ slack_uid: user.slack_uid, value });
+    updates.push({ slack_uid: user.slack_uid, value: Math.round(value * 100) / 100 });
   }
   if (updates.length > 0) {
     await supabase.from("value_leaderboard").upsert(updates, { onConflict: ["slack_uid"] });
