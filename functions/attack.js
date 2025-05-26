@@ -22,12 +22,16 @@ module.exports = async function attack({ user, item, respond }) {
   // 1 check cooldown
   const { data: fUser, error: fetchError } = await supabase
     .from(usersTable)
-    .select("attack_cooldown, hp")
+    .select("attack_cooldown, hp, opt_status")
     .eq("slack_uid", user.slack_uid)
     .single();
   if (fetchError) {
     console.error(`Error fetching user ${user.slack_uid} for attack:`, fetchError);
     await respond(":red-x: Something went horribly wrong. Please report this to 3kh0.");
+    return;
+  }
+  if (fUser?.opt_status === false) {
+    await respond(":red-x: You must opt-in to PvP before attacking other players! Use `/stacked optin` to opt-in.");
     return;
   }
   const cdu = fUser?.attack_cooldown ? Number(fUser.attack_cooldown) : null;
