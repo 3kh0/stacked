@@ -18,7 +18,10 @@ async function get(slack_uid) {
 }
 
 async function set(slack_uid, bal) {
-  return await supabase.from(usersTable).update({ balance: bal }).eq("slack_uid", slack_uid);
+  return await supabase
+    .from(usersTable)
+    .update({ balance: Math.round((bal + Number.EPSILON) * 100) / 100 })
+    .eq("slack_uid", slack_uid);
 }
 
 module.exports = async ({ respond, command }) => {

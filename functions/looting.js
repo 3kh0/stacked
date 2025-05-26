@@ -64,9 +64,9 @@ function lootUser(victim, killer) {
 
   // 5 take money
   const vicBal = victim.balance || 0;
-  const money = Math.floor(vicBal / 3);
-  const newVicBal = vicBal - money;
-  const killerMoney = (killer.balance || 0) + money;
+  const money = Math.floor((vicBal / 3) * 100) / 100;
+  const newVicBal = Math.round((vicBal - money + Number.EPSILON) * 100) / 100;
+  const killerMoney = Math.round(((killer.balance || 0) + money + Number.EPSILON) * 100) / 100;
   console.log(`[loot] transfer $${money} from victim (now $${newVicBal}) to killer (now $${killerMoney})`);
 
   return {

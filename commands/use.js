@@ -111,7 +111,7 @@ module.exports = async function useCommand({ args, respond, command }) {
       await respond(":red-x: Could not update your balance. Please try again later.");
       return;
     }
-    const newBalance = (userData.balance || 0) + found;
+    const newBalance = Math.round(((userData.balance || 0) + found + Number.EPSILON) * 100) / 100;
     await supabase.from(usersTable).update({ balance: newBalance }).eq("slack_uid", slack_uid);
     await respond(
       `You found *${fixCurrency(found)}* in your ${itemEmoji(target.name)} \`${target.name}\` and now have *${fixCurrency(newBalance)}*!`,
