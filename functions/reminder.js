@@ -19,20 +19,22 @@ async function check() {
   const { data: users, error } = await supabase
     .from(usersTable)
     .select("slack_uid, hourly_cooldown, daily_cooldown, weekly_cooldown, attack_cooldown");
-  if (error || !users) return;
+  if (error || !users) {
+    console.error("[reminder] error on users:", error);
+    return;
+  }
   const now = Date.now();
   for (const user of users) {
     for (const cd of CDS) {
       const expires = user[cd.key];
-      if (
-        typeof expires !== "number" ||
-        !Number.isFinite(expires) ||
-        expires === null ||
-        expires === undefined ||
-        expires > now
-      ) {
+      const expiresMs = typeof expires === "number" && expires < 1e12 ? expires * 1000 : expires;
+      if (typeof expiresMs !== "number" || !Number.isFinite(expiresMs)) {
         continue;
       }
+      if (expiresMs > now) {
+        continue;
+      }
+      // cd expired
       try {
         await app.client.chat.postMessage({
           channel: user.slack_uid,
@@ -43,13 +45,13 @@ async function check() {
           .update({ [cd.key]: null })
           .eq("slack_uid", user.slack_uid);
       } catch (e) {
-        console.error(`[reminder] fail on dm ${user.slack_uid}:`, e.data?.error || e.message);
+        console.error(`[reminder] fail on notify/reset ${cd.label} for ${user.slack_uid}:`, e.data?.error || e.message);
       }
     }
   }
 }
 
 // startup
-//check();
+check();
 // 1 min
-//setInterval(check, 60 * 1000);
+setInterval(check, 60 * 1000);
