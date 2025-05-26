@@ -2,6 +2,7 @@ const supabase = require("../lib/supabase.js");
 const { findItem } = require("../functions/item.js");
 const { addItems } = require("../functions/inventory.js");
 const { itemEmoji } = require("../functions/itemEmoji.js");
+const usersTable = process.env.SUPABASE_USERS_TABLE;
 
 module.exports = async ({ respond, command, client }) => {
   if (command.user_id !== "U080A3QP42C") {
@@ -46,7 +47,11 @@ module.exports = async ({ respond, command, client }) => {
     return;
   }
 
-  const { data: user, error } = await supabase.from("users").select("slack_uid").eq("slack_uid", target_uid).single();
+  const { data: user, error } = await supabase
+    .from(usersTable)
+    .select("slack_uid")
+    .eq("slack_uid", target_uid)
+    .single();
   if (error || !user) {
     await respond({ text: ":red-x: user not exist" });
     return;

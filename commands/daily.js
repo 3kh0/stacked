@@ -3,8 +3,10 @@ const { itemEmoji } = require("../functions/itemEmoji.js");
 const supabase = require("../lib/supabase.js");
 const { fixTime } = require("../functions/fix.js");
 
+const usersTable = process.env.SUPABASE_USERS_TABLE;
+
 async function check(slack_uid) {
-  const { data, error } = await supabase.from("users").select("daily_cooldown").eq("slack_uid", slack_uid).single();
+  const { data, error } = await supabase.from(usersTable).select("daily_cooldown").eq("slack_uid", slack_uid).single();
   if (error) return { error };
   const now = Math.floor(Date.now() / 1000);
   const cdu = data?.daily_cooldown ? Number(data.daily_cooldown) : null;
@@ -17,7 +19,7 @@ async function check(slack_uid) {
 async function set(slack_uid) {
   const now = Math.floor(Date.now() / 1000);
   return await supabase
-    .from("users")
+    .from(usersTable)
     .update({ daily_cooldown: now + 86400 })
     .eq("slack_uid", slack_uid);
 }

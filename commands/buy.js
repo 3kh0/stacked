@@ -4,8 +4,10 @@ const { addItems } = require("../functions/inventory.js");
 const { findItem } = require("../functions/item.js");
 const { itemEmoji } = require("../functions/itemEmoji.js");
 
+const usersTable = process.env.SUPABASE_USERS_TABLE;
+
 async function bal(slack_uid, bal) {
-  return await supabase.from("users").update({ balance: bal }).eq("slack_uid", slack_uid);
+  return await supabase.from(usersTable).update({ balance: bal }).eq("slack_uid", slack_uid);
 }
 
 module.exports = async ({ respond, command }) => {
@@ -37,7 +39,7 @@ module.exports = async ({ respond, command }) => {
   }
 
   let { data: user, error } = await supabase
-    .from("users")
+    .from(usersTable)
     .select(" inventory, balance")
     .eq("slack_uid", slack_uid)
     .single();

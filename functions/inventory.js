@@ -1,6 +1,7 @@
 // got tired of calling the same thing over and over again
 
 const supabase = require("../lib/supabase");
+const usersTable = process.env.SUPABASE_USERS_TABLE;
 
 function check(arr) {
   if (!Array.isArray(arr)) return false;
@@ -29,7 +30,7 @@ async function getInv(userId) {
     console.error(`[inv] getInv: invalid userId`, userId);
     return [];
   }
-  const { data, error } = await supabase.from("users").select("inventory").eq("slack_uid", userId).single();
+  const { data, error } = await supabase.from(usersTable).select("inventory").eq("slack_uid", userId).single();
   if (error) console.error(`[inv] getInv error:`, error);
   if (!data) {
     console.warn(`[inv] getInv: no data for userId`, userId);
@@ -86,7 +87,7 @@ async function addItems(userId, items) {
     console.error(`[inv] addItems: resulting inventory invalid`, inventory);
     return [];
   }
-  const { error } = await supabase.from("users").update({ inventory }).eq("slack_uid", userId);
+  const { error } = await supabase.from(usersTable).update({ inventory }).eq("slack_uid", userId);
   if (error) console.error(`[inv] addItems update error:`, error);
   return inventory;
 }
@@ -137,7 +138,7 @@ async function takeItems(userId, items) {
     console.error(`[inv] takeItems: resulting inventory invalid`, inventory);
     return [];
   }
-  const { error } = await supabase.from("users").update({ inventory }).eq("slack_uid", userId);
+  const { error } = await supabase.from(usersTable).update({ inventory }).eq("slack_uid", userId);
   if (error) console.error(`[inv] takeItems update error:`, error);
   return inventory;
 }

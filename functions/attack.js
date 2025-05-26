@@ -2,6 +2,7 @@ const supabase = require("../lib/supabase.js");
 const { itemEmoji } = require("./itemEmoji.js");
 const { fixTime } = require("./fix.js");
 const { getInv, takeItems } = require("./inventory.js");
+const usersTable = process.env.SUPABASE_USERS_TABLE;
 
 function randomInt(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -20,7 +21,7 @@ module.exports = async function attack({ user, item, respond }) {
   // why comments? i somehow got lost in this so it helps i swear plus vscode nesting
   // 1 check cooldown
   const { data: fUser, error: fetchError } = await supabase
-    .from("users")
+    .from(usersTable)
     .select("attack_cooldown, hp")
     .eq("slack_uid", user.slack_uid)
     .single();
@@ -45,7 +46,7 @@ module.exports = async function attack({ user, item, respond }) {
 
   // 2 find valid targets
   const { data: users, error } = await supabase
-    .from("users")
+    .from(usersTable)
     .select("slack_uid, hp, inventory, opt_status")
     .eq("opt_status", true);
   if (error || !users || users.length < 2) {
@@ -86,10 +87,10 @@ module.exports = async function attack({ user, item, respond }) {
 
   // 6 do damage
   const newHp = Math.max(0, (target.hp ?? 100) - dmg);
-  await supabase.from("users").update({ hp: newHp }).eq("slack_uid", target.slack_uid);
+  await supabase.from(usersTable).update({ hp: newHp }).eq("slack_uid", target.slack_uid);
   // cooldown (only after successful attack)
   await supabase
-    .from("users")
+    .from(usersTable)
     .update({ attack_cooldown: now + weapon.cooldown })
     .eq("slack_uid", user.slack_uid);
 
@@ -107,12 +108,12 @@ module.exports = async function attack({ user, item, respond }) {
     const { lootUser, lootBlock } = require("./looting.js");
     // Fetch full victim and killer user objects (with id, inventory, balance)
     const { data: victimUser } = await supabase
-      .from("users")
+      .from(usersTable)
       .select("slack_uid, inventory, balance")
       .eq("slack_uid", target.slack_uid)
       .single();
     const { data: killerUser } = await supabase
-      .from("users")
+      .from(usersTable)
       .select("slack_uid, inventory, balance")
       .eq("slack_uid", user.slack_uid)
       .single();
@@ -120,10 +121,13 @@ module.exports = async function attack({ user, item, respond }) {
     const lootResult = lootUser(victimUser, killerUser);
     // Update both users in DB
     await supabase
-      .from("users")
+      .from(usersTable)
       .update({ balance: lootResult.updatedVictim.balance, opt_status: false, hp: 100 })
       .eq("slack_uid", target.slack_uid);
-    await supabase.from("users").update({ balance: lootResult.updatedKiller.balance }).eq("slack_uid", user.slack_uid);
+    await supabase
+      .from(usersTable)
+      .update({ balance: lootResult.updatedKiller.balance })
+      .eq("slack_uid", user.slack_uid);
     const blocks = lootBlock({
       killer: killerUser,
       victim: victimUser,

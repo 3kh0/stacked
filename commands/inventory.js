@@ -2,6 +2,8 @@ const supabase = require("../lib/supabase.js");
 const { findItem } = require("../functions/item.js");
 const { itemEmoji } = require("../functions/itemEmoji.js");
 
+const usersTable = process.env.SUPABASE_USERS_TABLE;
+
 module.exports = async ({ respond, command }) => {
   let slack_uid = command.user_id;
   let lookup = false;
@@ -26,7 +28,7 @@ module.exports = async ({ respond, command }) => {
   }
 
   let { data: user, error } = await supabase
-    .from("users")
+    .from(usersTable)
     .select("inventory, balance, hp, opt_status")
     .eq("slack_uid", slack_uid)
     .single();

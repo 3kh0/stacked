@@ -20,7 +20,8 @@ async function calc(user) {
 }
 
 module.exports = async function placeValue() {
-  const { data: users, error } = await supabase.from("users").select("slack_uid, inventory, balance");
+  const usersTable = process.env.SUPABASE_USERS_TABLE;
+  const { data: users, error } = await supabase.from(usersTable).select("slack_uid, inventory, balance");
   if (error || !users) return;
   const updates = [];
   for (const user of users) {

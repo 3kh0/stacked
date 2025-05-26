@@ -15,8 +15,9 @@ const CDS = [
 ];
 
 async function check() {
+  const usersTable = process.env.SUPABASE_USERS_TABLE;
   const { data: users, error } = await supabase
-    .from("users")
+    .from(usersTable)
     .select("slack_uid, hourly_cooldown, daily_cooldown, weekly_cooldown, attack_cooldown");
   if (error || !users) return;
   const now = Date.now();
@@ -38,7 +39,7 @@ async function check() {
           text: `:yay: Your *${cd.label} cooldown* has expired! You can now use it again!`,
         });
         await supabase
-          .from("users")
+          .from(usersTable)
           .update({ [cd.key]: null })
           .eq("slack_uid", user.slack_uid);
       } catch (e) {

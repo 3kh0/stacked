@@ -1,5 +1,6 @@
 const supabase = require("../lib/supabase.js");
 const { fixCurrency } = require("../functions/fix.js");
+const usersTable = process.env.SUPABASE_USERS_TABLE;
 
 function parseBet(args) {
   if (!args || args.length < 2) return null;
@@ -11,13 +12,13 @@ function parseBet(args) {
 }
 
 async function get(slack_uid) {
-  const { data, error } = await supabase.from("users").select("balance").eq("slack_uid", slack_uid).single();
+  const { data, error } = await supabase.from(usersTable).select("balance").eq("slack_uid", slack_uid).single();
   if (error) return { error };
   return { balance: data?.balance || 0 };
 }
 
 async function set(slack_uid, bal) {
-  return await supabase.from("users").update({ balance: bal }).eq("slack_uid", slack_uid);
+  return await supabase.from(usersTable).update({ balance: bal }).eq("slack_uid", slack_uid);
 }
 
 module.exports = async ({ respond, command }) => {

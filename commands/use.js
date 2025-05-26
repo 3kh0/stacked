@@ -5,6 +5,7 @@ const { fixCurrency } = require("../functions/fix.js");
 const { findItem } = require("../functions/item.js");
 const { drawTier } = require("../functions/drawTier.js");
 const { drawItem } = require("../functions/drawItem.js");
+const usersTable = process.env.SUPABASE_USERS_TABLE;
 
 function randomInt(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -23,7 +24,11 @@ module.exports = async function useCommand({ args, respond, command }) {
   }
 
   const slack_uid = command.user_id;
-  let { data: user, error } = await supabase.from("users").select("hp, slack_uid").eq("slack_uid", slack_uid).single();
+  let { data: user, error } = await supabase
+    .from(usersTable)
+    .select("hp, slack_uid")
+    .eq("slack_uid", slack_uid)
+    .single();
   if (error || !user) {
     await respond(":red-x: You are not registered! Please run `/stacked start` to begin playing.");
     return;
@@ -75,7 +80,7 @@ module.exports = async function useCommand({ args, respond, command }) {
     const heala = randomInt(target.heal.min, target.heal.max);
     const healed = Math.min(heala, 100 - chp);
     const nhp = Math.min(chp + healed, 100);
-    await supabase.from("users").update({ hp: nhp }).eq("slack_uid", slack_uid);
+    await supabase.from(usersTable).update({ hp: nhp }).eq("slack_uid", slack_uid);
     await respond(
       `You used a ${itemEmoji(target.name)} \`${target.name}\` and healed *${healed} HP*! (HP: *${chp} → ${nhp}*)`,
     );
@@ -98,7 +103,7 @@ module.exports = async function useCommand({ args, respond, command }) {
     await takeItems(slack_uid, { item: target.name, qty: 1 });
     const found = r(target.money.min, target.money.max);
     let { data: userData, error: balError } = await supabase
-      .from("users")
+      .from(usersTable)
       .select("balance")
       .eq("slack_uid", slack_uid)
       .single();
@@ -107,7 +112,7 @@ module.exports = async function useCommand({ args, respond, command }) {
       return;
     }
     const newBalance = (userData.balance || 0) + found;
-    await supabase.from("users").update({ balance: newBalance }).eq("slack_uid", slack_uid);
+    await supabase.from(usersTable).update({ balance: newBalance }).eq("slack_uid", slack_uid);
     await respond(
       `You found *${fixCurrency(found)}* in your ${itemEmoji(target.name)} \`${target.name}\` and now have *${fixCurrency(newBalance)}*!`,
     );

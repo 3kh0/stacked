@@ -1,4 +1,5 @@
 const supabase = require("../lib/supabase.js");
+const usersTable = process.env.SUPABASE_USERS_TABLE;
 
 module.exports = async ({ respond, command }) => {
   const slack_uid = command.user_id;
@@ -19,7 +20,7 @@ module.exports = async ({ respond, command }) => {
   }
 
   const { data: userData, error: fetchError } = await supabase
-    .from("users")
+    .from(usersTable)
     .select("attack_cooldown")
     .eq("slack_uid", slack_uid)
     .single();
@@ -44,7 +45,7 @@ module.exports = async ({ respond, command }) => {
     return;
   }
 
-  const { error } = await supabase.from("users").update({ opt_status: opt }).eq("slack_uid", slack_uid);
+  const { error } = await supabase.from(usersTable).update({ opt_status: opt }).eq("slack_uid", slack_uid);
 
   if (error) {
     console.error("error on update opt:", error);

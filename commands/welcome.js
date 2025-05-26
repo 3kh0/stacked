@@ -1,8 +1,9 @@
 const supabase = require("../lib/supabase.js");
+const usersTable = process.env.SUPABASE_USERS_TABLE;
 
 module.exports = async ({ respond, command }) => {
   const slack_uid = command.user_id;
-  const { data: user, error } = await supabase.from("users").select("slack_uid").eq("slack_uid", slack_uid).single();
+  const { data: user, error } = await supabase.from(usersTable).select("slack_uid").eq("slack_uid", slack_uid).single();
 
   // PGRST116 no rows returned
   if (error && error.code !== "PGRST116") {
@@ -43,7 +44,7 @@ module.exports = async ({ respond, command }) => {
   }
 
   if (!user && (!error || error.code === "PGRST116")) {
-    const { error: insErr } = await supabase.from("users").insert({
+    const { error: insErr } = await supabase.from(usersTable).insert({
       slack_uid,
       inventory: [],
       balance: 0,
