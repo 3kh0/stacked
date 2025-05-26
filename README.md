@@ -25,6 +25,7 @@ Still in beta/a complete buggy mess, but actively improving.
    SLACK_SIGNING_SECRET=abcdefghijklmnopqrstuvwxyz123456
    SUPABASE_URL=https://abcdefghijklmnopqrstuvwxyz123456.supabase.co
    SUPABASE_SERVICE_ROLE_KEY=abcdefghijklmnopqrstuvwxyz123456
+   SUPABASE_USERS_TABLE=users
    ```
 
 4. Setup the database, here is a oneliner that will get you up and running. You can paste it into your Supabase SQL editor.
