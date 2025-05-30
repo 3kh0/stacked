@@ -71,13 +71,15 @@ module.exports = async function attack({ user, item, respond, inv }) {
   const weapon = item;
   const attackerInv = inv || (await getInv(attacker));
   if (weapon.type === "firearm") {
-    if (attackerInv.findIndex((i) => i.item === weapon.ammo && i.qty > 0) === -1) {
+    const ammoTypes = Array.isArray(weapon.ammo) ? weapon.ammo : [weapon.ammo];
+    const ammoItem = attackerInv.find((i) => ammoTypes.includes(i.item) && i.qty > 0);
+    if (!ammoItem) {
       await respond(
-        `:red-x: You need at least 1 ${itemEmoji(String(weapon.ammo))} \`${weapon.ammo}\` to use this weapon!`,
+        `:red-x: You need at least 1 ${itemEmoji(String(ammoTypes[0]))} \`${ammoTypes[0]}\` to use this weapon!`,
       );
       return;
     }
-    await takeItems(attacker, { item: weapon.ammo, qty: 1 });
+    await takeItems(attacker, { item: ammoItem.item, qty: 1 });
   } else if (weapon.type === "melee") {
     if (attackerInv.findIndex((i) => i.item === weapon.name && i.qty > 0) === -1) {
       await respond(`:red-x: You do not have any ${itemEmoji(weapon.name)} \`${weapon.name}\` to use.`);
