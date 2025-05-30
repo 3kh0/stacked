@@ -14,9 +14,10 @@ function randomInt(min, max) {
  * @param {object} params.user - attacking user row from DB
  * @param {object} params.item - item being used to attack
  * @param {function} params.respond - slack respond
+ * @param {Array} [params.inv] - opt inv for attacker
  * @returns {Promise<void>}
  */
-module.exports = async function attack({ user, item, respond }) {
+module.exports = async function attack({ user, item, respond, inv }) {
   const now = Math.floor(Date.now() / 1000);
   // why comments? i somehow got lost in this so it helps i swear plus vscode nesting
   // 1 check cooldown
@@ -68,9 +69,9 @@ module.exports = async function attack({ user, item, respond }) {
   // 4 check weapon and see what type it is
   const attacker = user.slack_uid;
   const weapon = item;
+  const attackerInv = inv || (await getInv(attacker));
   if (weapon.type === "firearm") {
-    const inv = await getInv(attacker);
-    if (inv.findIndex((i) => i.item === weapon.ammo && i.qty > 0) === -1) {
+    if (attackerInv.findIndex((i) => i.item === weapon.ammo && i.qty > 0) === -1) {
       await respond(
         `:red-x: You need at least 1 ${itemEmoji(String(weapon.ammo))} \`${weapon.ammo}\` to use this weapon!`,
       );
@@ -78,8 +79,7 @@ module.exports = async function attack({ user, item, respond }) {
     }
     await takeItems(attacker, { item: weapon.ammo, qty: 1 });
   } else if (weapon.type === "melee") {
-    const inv = await getInv(attacker);
-    if (inv.findIndex((i) => i.item === weapon.name && i.qty > 0) === -1) {
+    if (attackerInv.findIndex((i) => i.item === weapon.name && i.qty > 0) === -1) {
       await respond(`:red-x: You do not have any ${itemEmoji(weapon.name)} \`${weapon.name}\` to use.`);
       return;
     }

@@ -124,7 +124,7 @@ module.exports = async function useCommand({ args, respond, command }) {
   // =================
   if (target.type === "melee" || target.type === "firearm") {
     const attack = require("../functions/attack.js");
-    await attack({ user, item: target, respond });
+    await attack({ user, item: target, respond, inv });
     return;
   }
 
