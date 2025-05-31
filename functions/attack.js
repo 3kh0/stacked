@@ -141,14 +141,21 @@ module.exports = async function attack({ user, item, respond, inv }) {
       summary: lootResult.summary,
       money: lootResult.money,
     });
+    const block2 = {
+      type: "section",
+      text: {
+        type: "mrkdwn",
+        text: `You were killed by <@${user.slack_uid}> and looted! You have been revived with *100 HP* and your PvP status has been reset. Use \`/stacked optin\` to opt-in again.`,
+      },
+    };
+    const combinedBlocks = [block2, ...blocks];
     await respond({ blocks });
     await respond({
       text: `:skull: You killed <@${target.slack_uid}> with ${itemEmoji(weapon.name)} \`${weapon.name}\` and looted their inventory!`,
     });
     await sc.chat.postMessage({
       channel: dm.channel.id,
-      blocks,
-      text: `You were killed by <@${user.slack_uid}> and looted! You have been revived with *100 HP* and your PvP status has been reset. Use \`/stacked optin\` to opt-in again.`,
+      blocks: combinedBlocks,
     });
   } else {
     // not kill, still notify
