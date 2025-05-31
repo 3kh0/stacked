@@ -148,7 +148,7 @@ module.exports = async function attack({ user, item, respond, inv }) {
     await sc.chat.postMessage({
       channel: dm.channel.id,
       blocks,
-      text: `You were killed by <@${user.slack_uid}> and looted!`,
+      text: `You were killed by <@${user.slack_uid}> and looted! You have been revived with *100 HP* and your PvP status has been reset. Use \`/stacked optin\` to opt-in again.`,
     });
   } else {
     // not kill, still notify
