@@ -157,6 +157,10 @@ module.exports = async function attack({ user, item, respond, inv }) {
       channel: dm.channel.id,
       blocks: combinedBlocks,
     });
+    await sc.chat.postMessage({
+      channel: "C08SU62NWNP", // logging channel
+      blocks: combinedBlocks,
+    });
   } else {
     // not kill, still notify
     await respond({
