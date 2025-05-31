@@ -1,6 +1,7 @@
 const supabase = require("../lib/supabase.js");
 const { fixCurrency } = require("../functions/fix.js");
 const usersTable = process.env.SUPABASE_USERS_TABLE;
+const crypto = require("crypto");
 
 function parseBet(args) {
   if (!args || args.length < 2) return null;
@@ -49,9 +50,13 @@ module.exports = async ({ respond, command }) => {
     return;
   }
 
-  const flip = Math.random() < 0.5 ? "heads" : "tails";
-  let result = `:coin-mario: The coin landed on *${flip}* and you had bet on *${side}*.`;
-  if (flip === side) {
+  function flip() {
+    const byte = crypto.randomBytes(1)[0];
+    return byte < 128 ? "heads" : "tails";
+  }
+  const flipr = flip();
+  let result = `:coin-mario: The coin landed on *${flipr}* and you had bet on *${side}*.`;
+  if (flipr === side) {
     const bal = balance + amount;
     await set(slack_uid, bal);
     result += `\n:yay: You won *${fixCurrency(amount)}*! You now have: *${fixCurrency(bal)}*.`;
