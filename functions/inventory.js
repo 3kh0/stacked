@@ -25,7 +25,6 @@ function check(arr) {
  * @returns {Promise<Array>} inventory
  */
 async function getInv(userId) {
-  console.log(`[inv] getInv called for userId:`, userId);
   if (!userId || typeof userId !== "string") {
     console.error(`[inv] getInv: invalid userId`, userId);
     return [];
