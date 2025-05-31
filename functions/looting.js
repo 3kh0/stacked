@@ -3,7 +3,7 @@ const itemsList = require("../lib/items.js");
 const { fixMoney } = require("./fix.js");
 const { addItems, takeItems } = require("./inventory.js");
 
-function lootUser(victim, killer) {
+async function lootUser(victim, killer) {
   console.log(`[loot] lootUser: victim.id=${victim.id}, killer.id=${killer.id}`);
   // 1 prepare vic inv
   let victimInv = (victim.inventory || []).map((entry) => ({
@@ -56,9 +56,9 @@ function lootUser(victim, killer) {
   let summary = [];
   for (const [name, qty] of Object.entries(lootCs)) {
     console.log(`[loot] take ${qty} of ${name} from victim.slack_uid=${victim.slack_uid}`);
-    takeItems(victim.slack_uid, { item: name, qty });
+    await takeItems(victim.slack_uid, { item: name, qty });
     console.log(`[loot] add ${qty} of ${name} to killer.slack_uid=${killer.slack_uid}`);
-    addItems(killer.slack_uid, { item: name, qty });
+    await addItems(killer.slack_uid, { item: name, qty });
     summary.push(`${itemEmoji(name)} \`${name}\` x${qty}`);
   }
 
