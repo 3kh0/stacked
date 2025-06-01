@@ -29,18 +29,51 @@ async function getInv(userId) {
     console.error(`[inv] getInv: invalid userId`, userId);
     return [];
   }
-  const { data, error } = await supabase.from(usersTable).select("inventory").eq("slack_uid", userId).single();
-  if (error) console.error(`[inv] getInv error:`, error);
-  if (!data) {
-    console.warn(`[inv] getInv: no data for userId`, userId);
+
+  try {
+    const { data, error } = await supabase.from(usersTable).select("inventory").eq("slack_uid", userId).single();
+    if (error) {
+      console.error(`[inv] getInv error:`, error);
+      return [];
+    }
+    if (!data) {
+      console.warn(`[inv] getInv: no data for userId`, userId);
+      return [];
+    }
+
+    let inv = data.inventory;
+    if (!inv) {
+      console.warn(`[inv] getInv: null/undefined inventory for userId`, userId);
+      return [];
+    }
+
+    if (!check(inv)) {
+      console.error(`[inv] getInv: invalid inventory format for userId`, userId, inv);
+      // plz fix
+      if (Array.isArray(inv)) {
+        inv = inv.filter(
+          (item) =>
+            item &&
+            typeof item === "object" &&
+            typeof item.item === "string" &&
+            typeof item.qty === "number" &&
+            Number.isFinite(item.qty) &&
+            item.qty >= 0,
+        );
+        if (check(inv)) {
+          console.log(`[inv] getInv: cleaned invalid inventory for userId`, userId);
+          await supabase.from(usersTable).update({ inventory: inv }).eq("slack_uid", userId);
+          return inv;
+        }
+      }
+      return [];
+    }
+
+    return inv;
+  } catch (err) {
+    console.error(`[inv] getInv unexpected error:`, err);
     return [];
   }
-  let inv = data.inventory;
-  if (!check(inv)) {
-    console.error(`[inv] getInv: invalid inventory format for userId`, userId, inv);
-    return [];
-  }
-  return inv;
 }
 
 /**
@@ -59,36 +92,50 @@ async function addItems(userId, items) {
     console.warn(`[inv] addItems: no items provided`, items);
     return await getInv(userId);
   }
-  const inventory = await getInv(userId);
-  const newItems = Array.isArray(items) ? items : [items];
-  for (const newItem of newItems) {
-    if (
-      !newItem ||
-      typeof newItem.item !== "string" ||
-      !newItem.item.trim() ||
-      typeof newItem.qty !== "number" ||
-      !Number.isFinite(newItem.qty) ||
-      newItem.qty <= 0
-    ) {
-      console.error(`[inv] addItems: invalid item format`, newItem);
-      continue;
+
+  try {
+    const inventory = await getInv(userId);
+    const originalInventory = JSON.parse(JSON.stringify(inventory));
+    const newItems = Array.isArray(items) ? items : [items];
+
+    for (const newItem of newItems) {
+      if (
+        !newItem ||
+        typeof newItem.item !== "string" ||
+        !newItem.item.trim() ||
+        typeof newItem.qty !== "number" ||
+        !Number.isFinite(newItem.qty) ||
+        newItem.qty <= 0
+      ) {
+        console.error(`[inv] addItems: invalid item format`, newItem);
+        continue;
+      }
+      const idx = inventory.findIndex((i) => i.item === newItem.item);
+      if (idx !== -1) {
+        inventory[idx].qty = Math.round(((inventory[idx].qty || 0) + newItem.qty) * 100) / 100;
+        console.log(`[inv] addItems: updated qty for`, newItem.item, "to", inventory[idx].qty);
+      } else {
+        inventory.push({ item: newItem.item, qty: Math.round(newItem.qty * 100) / 100 });
+        console.log(`[inv] addItems: added new item`, newItem.item, "qty", newItem.qty);
+      }
     }
-    const idx = inventory.findIndex((i) => i.item === newItem.item);
-    if (idx !== -1) {
-      inventory[idx].qty = (inventory[idx].qty || 0) + newItem.qty;
-      console.log(`[inv] addItems: updated qty for`, newItem.item, "to", inventory[idx].qty);
-    } else {
-      inventory.push({ item: newItem.item, qty: newItem.qty });
-      console.log(`[inv] addItems: added new item`, newItem.item, "qty", newItem.qty);
+
+    if (!check(inventory)) {
+      console.error(`[inv] addItems: resulting inventory invalid`, inventory);
+      return originalInventory;
     }
+
+    const { error } = await supabase.from(usersTable).update({ inventory }).eq("slack_uid", userId);
+    if (error) {
+      console.error(`[inv] addItems update error:`, error);
+      return originalInventory;
+    }
+
+    return inventory;
+  } catch (err) {
+    console.error(`[inv] addItems unexpected error:`, err);
+    return await getInv(userId); // Return current state on error
   }
-  if (!check(inventory)) {
-    console.error(`[inv] addItems: resulting inventory invalid`, inventory);
-    return [];
-  }
-  const { error } = await supabase.from(usersTable).update({ inventory }).eq("slack_uid", userId);
-  if (error) console.error(`[inv] addItems update error:`, error);
-  return inventory;
 }
 
 /**
@@ -107,43 +154,109 @@ async function takeItems(userId, items) {
     console.warn(`[inv] takeItems: no items provided`, items);
     return await getInv(userId);
   }
-  const inventory = await getInv(userId);
-  const removeList = Array.isArray(items) ? items : [items];
-  for (const rem of removeList) {
-    if (
-      !rem ||
-      typeof rem.item !== "string" ||
-      !rem.item.trim() ||
-      typeof rem.qty !== "number" ||
-      !Number.isFinite(rem.qty) ||
-      rem.qty <= 0
-    ) {
-      console.error(`[inv] takeItems: invalid item format`, rem);
-      continue;
-    }
-    const idx = inventory.findIndex((i) => i.item === rem.item);
-    if (idx !== -1) {
-      inventory[idx].qty -= rem.qty;
-      console.log(`[inv] takeItems: updated qty for`, rem.item, "to", inventory[idx].qty);
-      if (inventory[idx].qty <= 0) {
-        inventory.splice(idx, 1);
-        console.log(`[inv] takeItems: removed item`, rem.item);
+
+  try {
+    const inventory = await getInv(userId);
+    const originalInventory = JSON.parse(JSON.stringify(inventory)); // in case of rollback
+    const removeList = Array.isArray(items) ? items : [items];
+
+    for (const rem of removeList) {
+      if (
+        !rem ||
+        typeof rem.item !== "string" ||
+        !rem.item.trim() ||
+        typeof rem.qty !== "number" ||
+        !Number.isFinite(rem.qty) ||
+        rem.qty <= 0
+      ) {
+        console.error(`[inv] takeItems: invalid item format`, rem);
+        return originalInventory;
       }
-    } else {
-      console.warn(`[inv] takeItems: item not found`, rem.item);
+
+      const idx = inventory.findIndex((i) => i.item === rem.item);
+      if (idx === -1) {
+        console.warn(`[inv] takeItems: item not found`, rem.item);
+        return originalInventory;
+      }
+
+      if (inventory[idx].qty < rem.qty) {
+        console.warn(
+          `[inv] takeItems: insufficient quantity for ${rem.item}. Have: ${inventory[idx].qty}, Need: ${rem.qty}`,
+        );
+        return originalInventory;
+      }
     }
+
+    for (const rem of removeList) {
+      const idx = inventory.findIndex((i) => i.item === rem.item);
+      if (idx !== -1) {
+        inventory[idx].qty = Math.round((inventory[idx].qty - rem.qty) * 100) / 100;
+        console.log(`[inv] takeItems: updated qty for`, rem.item, "to", inventory[idx].qty);
+        if (inventory[idx].qty <= 0) {
+          inventory.splice(idx, 1);
+          console.log(`[inv] takeItems: removed item`, rem.item);
+        }
+      }
+    }
+
+    if (!check(inventory)) {
+      console.error(`[inv] takeItems: resulting inventory invalid`, inventory);
+      return originalInventory;
+    }
+
+    const { error } = await supabase.from(usersTable).update({ inventory }).eq("slack_uid", userId);
+    if (error) {
+      console.error(`[inv] takeItems update error:`, error);
+      return originalInventory;
+    }
+
+    return inventory;
+  } catch (err) {
+    console.error(`[inv] takeItems unexpected error:`, err);
+    return await getInv(userId);
   }
-  if (!check(inventory)) {
-    console.error(`[inv] takeItems: resulting inventory invalid`, inventory);
-    return [];
+}
+
+/**
+ * check if user has x amount of item
+ * @param {string} userId
+ * @param {Array|Object} items - single or array of item to check
+ * @returns {Promise<boolean>} true if user passes check
+ */
+async function hasItems(userId, items) {
+  try {
+    const inventory = await getInv(userId);
+    const checkList = Array.isArray(items) ? items : [items];
+
+    for (const item of checkList) {
+      if (
+        !item ||
+        typeof item.item !== "string" ||
+        !item.item.trim() ||
+        typeof item.qty !== "number" ||
+        !Number.isFinite(item.qty) ||
+        item.qty <= 0
+      ) {
+        console.error(`[inv] hasItems: invalid format`, item);
+        return false;
+      }
+
+      const idx = inventory.findIndex((i) => i.item === item.item);
+      if (idx === -1 || inventory[idx].qty < item.qty) {
+        return false;
+      }
+    }
+
+    return true;
+  } catch (err) {
+    console.error(`[inv] hasItems error:`, err);
+    return false;
   }
-  const { error } = await supabase.from(usersTable).update({ inventory }).eq("slack_uid", userId);
-  if (error) console.error(`[inv] takeItems update error:`, error);
-  return inventory;
 }
 
 module.exports = {
   getInv,
   addItems,
   takeItems,
+  hasItems,
 };

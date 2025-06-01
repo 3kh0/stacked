@@ -1,6 +1,6 @@
 const supabase = require("../lib/supabase.js");
 const { itemEmoji } = require("../functions/itemEmoji.js");
-const { getInv, addItems, takeItems } = require("../functions/inventory.js");
+const { getInv, addItems, takeItems, hasItems } = require("../functions/inventory.js");
 const { fixCurrency } = require("../functions/fix.js");
 const { findItem } = require("../functions/item.js");
 const { drawTier } = require("../functions/drawTier.js");
@@ -36,8 +36,8 @@ module.exports = async function useCommand({ args, respond, command }) {
   const inv = await getInv(slack_uid);
 
   if (target.type === "box") {
-    const idx = inv.findIndex((i) => i.item === target.name);
-    if (idx === -1 || inv[idx].qty < 1) {
+    const hasBox = await hasItems(slack_uid, { item: target.name, qty: 1 });
+    if (!hasBox) {
       await respond(`:red-x: You do not have any ${itemEmoji(target.name)} \`${target.name}\` to open.`);
       return;
     }
@@ -54,7 +54,12 @@ module.exports = async function useCommand({ args, respond, command }) {
       epic: ":stk_epic_e::stk_epic_p::stk_epic_i::stk_epic_c:",
     };
     await takeItems(slack_uid, { item: target.name, qty: 1 });
-    await addItems(slack_uid, { item: unboxed, qty: 1 });
+    const updatedInv = await addItems(slack_uid, { item: unboxed, qty: 1 });
+    if (updatedInv.length === 0) {
+      await respond(`:red-x: Failed to open the box. Please try again.`);
+      return;
+    }
+
     await respond(
       `${label[rarity] || rarity.charAt(0).toUpperCase() + rarity.slice(1)} ${itemEmoji(unboxed)} \`${unboxed}\` unboxed from your ${itemEmoji(target.name)} \`${target.name}\`!`,
     );
@@ -70,9 +75,8 @@ module.exports = async function useCommand({ args, respond, command }) {
       await respond(":red-x: You are already at full health!");
       return;
     }
-    // Remove one from inv for the healing item
-    const idx = inv.findIndex((i) => i.item === target.name);
-    if (idx === -1 || inv[idx].qty < 1) {
+    const hasHealItem = await hasItems(slack_uid, { item: target.name, qty: 1 });
+    if (!hasHealItem) {
       await respond(`:red-x: You do not have any ${itemEmoji(target.name)} \`${target.name}\` to use.`);
       return;
     }
@@ -95,8 +99,8 @@ module.exports = async function useCommand({ args, respond, command }) {
       // needed for 2 decimal places
       return Math.round((Math.random() * (max - min) + min) * 100) / 100;
     }
-    const idx = inv.findIndex((i) => i.item === target.name);
-    if (idx === -1 || inv[idx].qty < 1) {
+    const hasMoneyItem = await hasItems(slack_uid, { item: target.name, qty: 1 });
+    if (!hasMoneyItem) {
       await respond(`:red-x: You do not have any ${itemEmoji(target.name)} \`${target.name}\` to use.`);
       return;
     }

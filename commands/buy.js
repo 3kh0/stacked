@@ -69,7 +69,15 @@ module.exports = async ({ respond, command }) => {
     });
     return;
   }
-  await addItems(slack_uid, { item: item.name, qty });
+
+  const updated = await addItems(slack_uid, { item: item.name, qty });
+  if (updated.length === 0) {
+    await respond({
+      text: `:red-x: Something went wrong, please try again later.`,
+    });
+    return;
+  }
+
   balance = fixMoney(balance - totalCost);
   await bal(slack_uid, balance);
   await respond({
