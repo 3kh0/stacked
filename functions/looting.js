@@ -42,31 +42,56 @@ async function lootUser(victim, killer) {
 
   // 3 take every third
   let lootCs = {};
-  for (let i = 2; i < fItems.length; i += 3) {
-    const name = fItems[i].name;
-    lootCs[name] = (lootCs[name] || 0) + 1;
-  }
-  if (fItems.length > 0 && fItems.length < 3) {
+  if (fItems.length === 0) {
+    console.log(`[loot] victim has no items`);
+  } else if (fItems.length < 3) {
+    // If less than 3 items, take the last one
     const name = fItems[fItems.length - 1].name;
     lootCs[name] = (lootCs[name] || 0) + 1;
+  } else {
+    for (let i = 2; i < fItems.length; i += 3) {
+      const name = fItems[i].name;
+      lootCs[name] = (lootCs[name] || 0) + 1;
+    }
   }
   console.log(`[loot] loot counts:`, lootCs);
 
   // 4 transfer items
   let summary = [];
   for (const [name, qty] of Object.entries(lootCs)) {
-    console.log(`[loot] take ${qty} of ${name} from victim.slack_uid=${victim.slack_uid}`);
-    await takeItems(victim.slack_uid, { item: name, qty });
-    console.log(`[loot] add ${qty} of ${name} to killer.slack_uid=${killer.slack_uid}`);
-    await addItems(killer.slack_uid, { item: name, qty });
-    summary.push(`${itemEmoji(name)} \`${name}\` x${qty}`);
+    try {
+      console.log(`[loot] take ${qty} of ${name} from victim.slack_uid=${victim.slack_uid}`);
+      await takeItems(victim.slack_uid, { item: name, qty });
+
+      console.log(`[loot] add ${qty} of ${name} to killer.slack_uid=${killer.slack_uid}`);
+      await addItems(killer.slack_uid, { item: name, qty });
+
+      let emoji = "";
+      emoji = itemEmoji(name);
+      summary.push(`${emoji} \`${name}\` x${qty}`);
+    } catch (e) {
+      console.error(`[loot] error on transfer ${name}: ${e.message}`);
+      // when fail, try to restore to last safe state
+      try {
+        await addItems(victim.slack_uid, { item: name, qty });
+        console.log(`[loot] restored ${qty} of ${name} to victim`);
+      } catch (restoreError) {
+        console.error(`[loot] FUCK! failed to restore ${name} to victim: `, restoreError);
+      }
+    }
   }
 
   // 5 take money
   const vicBal = victim.balance || 0;
-  const money = Math.floor((vicBal / 3) * 100) / 100;
-  const newVicBal = Math.round((vicBal - money + Number.EPSILON) * 100) / 100;
-  const killerMoney = Math.round(((killer.balance || 0) + money + Number.EPSILON) * 100) / 100;
+  if (vicBal < 0) {
+    console.warn(`[loot] victim has negative balance: ${vicBal}`);
+  }
+
+  const vicBalCents = Math.round(vicBal * 100);
+  const moneyCents = Math.floor(vicBalCents / 3);
+  const money = moneyCents / 100;
+  const newVicBal = (vicBalCents - moneyCents) / 100;
+  const killerMoney = Math.round(((killer.balance || 0) + money) * 100) / 100;
   console.log(`[loot] transfer $${money} from victim (now $${newVicBal}) to killer (now $${killerMoney})`);
 
   return {
