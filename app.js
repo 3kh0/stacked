@@ -78,6 +78,8 @@ app.event("message", async ({ event, say, client }) => {
     else if (["value", "networth", "net", "val", "worth", "v"].includes(subcommand)) route = "value";
     else if (["leaderboard", "lb", "top"].includes(subcommand)) route = "leaderboard";
     else if (["tutorial", "guide", "how", "learn"].includes(subcommand)) route = "tutorial";
+    else if (["shout", "tellall"].includes(subcommand)) route = "shout";
+    else if (["give", "gift", "donate"].includes(subcommand)) route = "give";
     else route = null;
     if (route) {
       const commandPath = path.join(__dirname, "commands", `${route}.js`);
