@@ -4,7 +4,7 @@ const { fixMoney } = require("./fix.js");
 const { addItems, takeItems } = require("./inventory.js");
 
 async function lootUser(victim, killer) {
-  console.log(`[loot] lootUser: victim.id=${victim.id}, killer.id=${killer.id}`);
+  console.log(`[loot] lootUser: victim.slack_uid=${victim.slack_uid}, killer.slack_uid=${killer.slack_uid}`);
   // 1 prepare vic inv
   let victimInv = (victim.inventory || []).map((entry) => ({
     name: entry.item || entry.name,
