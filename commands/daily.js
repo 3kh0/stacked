@@ -2,6 +2,7 @@ const { addItems } = require("../functions/inventory.js");
 const { itemEmoji } = require("../functions/itemEmoji.js");
 const supabase = require("../lib/supabase.js");
 const { fixTime } = require("../functions/fix.js");
+const crypto = require("crypto");
 
 const usersTable = process.env.SUPABASE_USERS_TABLE;
 
@@ -43,7 +44,8 @@ module.exports = async ({ respond, command }) => {
   }
   let item = "rare_box";
   let qty = 1;
-  const roll = Math.random();
+  const b = crypto.randomBytes(4);
+  const roll = b.readUInt32BE(0) / 0xffffffff;
   console.log("[daily] claimed by", slack_uid, "roll:", roll);
   if (roll < 0.01) {
     item = "ultra_rare_box";

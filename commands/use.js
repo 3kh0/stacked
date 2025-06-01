@@ -5,10 +5,12 @@ const { fixCurrency } = require("../functions/fix.js");
 const { findItem } = require("../functions/item.js");
 const { drawTier } = require("../functions/drawTier.js");
 const { drawItem } = require("../functions/drawItem.js");
+const crypto = require("crypto");
 const usersTable = process.env.SUPABASE_USERS_TABLE;
 
-function randomInt(min, max) {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
+function s(min, max) {
+  const b = crypto.randomBytes(4);
+  return Math.floor((b.readUInt32BE(0) / 0xffffffff) * (max - min + 1)) + min;
 }
 
 module.exports = async function useCommand({ args, respond, command }) {
@@ -81,7 +83,7 @@ module.exports = async function useCommand({ args, respond, command }) {
       return;
     }
     await takeItems(slack_uid, { item: target.name, qty: 1 });
-    const heala = randomInt(target.heal.min, target.heal.max);
+    const heala = s(target.heal.min, target.heal.max);
     const healed = Math.min(heala, 100 - chp);
     const nhp = Math.min(chp + healed, 100);
     await supabase.from(usersTable).update({ hp: nhp }).eq("slack_uid", slack_uid);
@@ -96,8 +98,9 @@ module.exports = async function useCommand({ args, respond, command }) {
   // =================
   if (target.type === "money") {
     function r(min, max) {
-      // needed for 2 decimal places
-      return Math.round((Math.random() * (max - min) + min) * 100) / 100;
+      const b = crypto.randomBytes(4);
+      const out = b.readUInt32BE(0) / 0xffffffff;
+      return Math.round((out * (max - min) + min) * 100) / 100;
     }
     const hasMoneyItem = await hasItems(slack_uid, { item: target.name, qty: 1 });
     if (!hasMoneyItem) {

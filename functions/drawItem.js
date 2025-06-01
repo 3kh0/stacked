@@ -1,4 +1,10 @@
 const items = require("../lib/items.js");
+const crypto = require("crypto");
+
+function s() {
+  const b = crypto.randomBytes(4);
+  return b.readUInt32BE(0) / 0xffffffff;
+}
 
 /**
  * pick item provided rarity pool
@@ -13,7 +19,7 @@ function drawItem(rarity, opts = {}) {
     pool = pool.filter((item) => item.type !== "box");
   }
   if (pool.length === 0) return null; // this should not happen
-  const chosen = pool[Math.floor(Math.random() * pool.length)];
+  const chosen = pool[Math.floor(s() * pool.length)];
   return chosen.name;
 }
 

@@ -2,7 +2,13 @@ const { addItems } = require("../functions/inventory.js");
 const { itemEmoji } = require("../functions/itemEmoji.js");
 const supabase = require("../lib/supabase.js");
 const { fixTime } = require("../functions/fix.js");
+const crypto = require("crypto");
 const usersTable = process.env.SUPABASE_USERS_TABLE;
+
+function s() {
+  const b = crypto.randomBytes(4);
+  return b.readUInt32BE(0) / 0xffffffff;
+}
 
 async function check(slack_uid) {
   const { data, error } = await supabase.from(usersTable).select("weekly_cooldown").eq("slack_uid", slack_uid).single();
@@ -42,7 +48,7 @@ module.exports = async ({ respond, command }) => {
   }
   let item = "ultra_rare_box";
   let qty = 1;
-  const roll = Math.random();
+  const roll = s();
   console.log("[weekly] claimed by", slack_uid, "roll:", roll);
   if (roll < 0.01) {
     item = "epic_box";

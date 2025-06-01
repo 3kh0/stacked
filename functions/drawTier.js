@@ -1,4 +1,10 @@
+const crypto = require("crypto");
 const order = ["common", "uncommon", "rare", "ultra_rare", "epic"];
+
+function s() {
+  const b = crypto.randomBytes(4);
+  return b.readUInt32BE(0) / 0xffffffff;
+}
 
 /**
  * pick tier rarity based on floor
@@ -19,7 +25,7 @@ function drawTier(floor = "common") {
   }
 
   const total = Object.values(weights).reduce((a, b) => a + b, 0);
-  let rand = Math.random() * total;
+  let rand = s() * total;
   for (const [rarity, w] of Object.entries(weights)) {
     if (rand < w) return rarity;
     rand -= w;
