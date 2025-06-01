@@ -5,6 +5,7 @@ const { getInv, takeItems } = require("./inventory.js");
 const usersTable = process.env.SUPABASE_USERS_TABLE;
 
 function randomInt(min, max) {
+  if (min > max) [min, max] = [max, min]; // swap if min > max
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
@@ -103,44 +104,61 @@ module.exports = async function attack({ user, item, respond, inv }) {
   // 7 notify on attack
   const { WebClient } = require("@slack/web-api");
   const sc = new WebClient(process.env.SLACK_BOT_TOKEN);
-  const dm = await sc.conversations.open({ users: target.slack_uid });
-  await sc.chat.postMessage({
-    channel: dm.channel.id,
-    text: `${`<@${user.slack_uid}>`}'s ${itemEmoji(String(weapon.name))} \`${weapon.name}\` dealt *${dmg} damage* to you and you have *${newHp} HP* remaining.`,
-  });
+  let dm;
+  try {
+    dm = await sc.conversations.open({ users: target.slack_uid });
+    await sc.chat.postMessage({
+      channel: dm.channel.id,
+      text: `${`<@${user.slack_uid}>`}'s ${itemEmoji(String(weapon.name))} \`${weapon.name}\` dealt *${dmg} damage* to you and you have *${newHp} HP* remaining.`,
+    });
+  } catch (e) {
+    console.error("[attack] error on dispatch damage alert: ", e);
+    // we still ball
+  }
 
   // 8 check if dead and loot
   if (newHp === 0) {
     const { lootUser, lootBlock } = require("./looting.js");
     // Fetch full victim and killer user objects (with slack_uid, inventory, balance)
-    const { data: victimUser } = await supabase
+    const { data: victimUser, error: victimError } = await supabase
       .from(usersTable)
       .select("slack_uid, inventory, balance")
       .eq("slack_uid", target.slack_uid)
       .single();
-    const { data: killerUser } = await supabase
+    const { data: killerUser, error: killerError } = await supabase
       .from(usersTable)
       .select("slack_uid, inventory, balance")
       .eq("slack_uid", user.slack_uid)
       .single();
+
+    if (victimError || killerError || !victimUser || !killerUser) {
+      console.error("[attack] error on fetch users for looting: ", { victimError, killerError });
+      await respond(":red-x: Failed to fetch user data for looting. Please report this to 3kh0.");
+      return;
+    }
     // Run looting (await in case it's async)
     let lootResult;
     try {
       lootResult = await lootUser(victimUser, killerUser);
     } catch (e) {
-      console.error("[attack] Error in lootUser:", e);
+      console.error("[attack] error on lootUser: ", e);
       await respond(":red-x: Looting failed. Please report this to 3kh0.");
       return;
     }
-    // Update both users in DB
-    await supabase
-      .from(usersTable)
-      .update({ balance: lootResult.updatedVictim.balance, opt_status: false, hp: 100 })
-      .eq("slack_uid", target.slack_uid);
-    await supabase
-      .from(usersTable)
-      .update({ balance: lootResult.updatedKiller.balance })
-      .eq("slack_uid", user.slack_uid);
+    try {
+      await supabase
+        .from(usersTable)
+        .update({ balance: lootResult.updatedVictim.balance, opt_status: false, hp: 100 })
+        .eq("slack_uid", target.slack_uid);
+      await supabase
+        .from(usersTable)
+        .update({ balance: lootResult.updatedKiller.balance })
+        .eq("slack_uid", user.slack_uid);
+    } catch (e) {
+      console.error("[attack] error on update user balance: ", e);
+      await respond(":red-x: Failed to update balances. Please report this to 3kh0.");
+      return;
+    }
     const blocks = lootBlock({
       killer: killerUser,
       victim: victimUser,
@@ -160,14 +178,21 @@ module.exports = async function attack({ user, item, respond, inv }) {
     await respond({
       text: `:skull: You killed <@${target.slack_uid}> with ${itemEmoji(weapon.name)} \`${weapon.name}\` and looted their inventory!`,
     });
-    await sc.chat.postMessage({
-      channel: dm.channel.id,
-      blocks: combinedBlocks,
-    });
-    await sc.chat.postMessage({
-      channel: "C08SU62NWNP", // logging channel
-      blocks: combinedBlocks,
-    });
+    try {
+      if (dm) {
+        await sc.chat.postMessage({
+          channel: dm.channel.id,
+          blocks: combinedBlocks,
+        });
+      }
+      await sc.chat.postMessage({
+        channel: "C08SU62NWNP", // logging channel
+        blocks: combinedBlocks,
+      });
+    } catch (e) {
+      console.error("[attack] error dispatching death alert: ", e);
+      // we still ball
+    }
   } else {
     // not kill, still notify
     await respond({
