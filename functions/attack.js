@@ -2,11 +2,44 @@ const supabase = require("../lib/supabase.js");
 const { itemEmoji } = require("./itemEmoji.js");
 const { fixTime } = require("./fix.js");
 const { getInv, takeItems } = require("./inventory.js");
+const { findItem } = require("./item.js");
+const crypto = require("crypto");
 const usersTable = process.env.SUPABASE_USERS_TABLE;
 
 function randomInt(min, max) {
   if (min > max) [min, max] = [max, min]; // swap if min > max
-  return Math.floor(Math.random() * (max - min + 1)) + min;
+  const range = max - min + 1;
+  const randomBytes = crypto.randomBytes(4);
+  const randomValue = randomBytes.readUInt32BE(0);
+  return Math.floor((randomValue / 0xffffffff) * range) + min;
+}
+
+async function calc(user) {
+  const inventory = user.inventory || [];
+  let total = 0;
+  for (const invItem of inventory) {
+    const item = findItem(invItem.item);
+    if (!item) continue;
+    let value = null;
+    if (typeof item.value === "number") value = item.value;
+    else if (typeof item.buy === "number") value = item.buy;
+    else if (typeof item.sell === "number") value = item.sell;
+    if (typeof value === "number") {
+      total += value * invItem.qty;
+    }
+  }
+  if (typeof user.balance === "number") total += user.balance;
+  return total;
+}
+
+function russianRoulette(targets) {
+  if (targets.length === 0) return null;
+  if (targets.length === 1) return targets[0];
+
+  const randomBytes = crypto.randomBytes(4);
+  const randomValue = randomBytes.readUInt32BE(0);
+  const index = Math.floor((randomValue / 0xffffffff) * targets.length);
+  return targets[index];
 }
 
 /**
@@ -24,7 +57,7 @@ module.exports = async function attack({ user, item, respond, inv }) {
   // 1 check cooldown
   const { data: fUser, error: fetchError } = await supabase
     .from(usersTable)
-    .select("attack_cooldown, hp, opt_status")
+    .select("attack_cooldown, hp, opt_status, inventory, balance")
     .eq("slack_uid", user.slack_uid)
     .single();
   if (fetchError) {
@@ -53,19 +86,42 @@ module.exports = async function attack({ user, item, respond, inv }) {
   // 2 find valid targets
   const { data: users, error } = await supabase
     .from(usersTable)
-    .select("slack_uid, hp, inventory, opt_status")
+    .select("slack_uid, hp, inventory, balance, opt_status")
     .eq("opt_status", true);
   if (error || !users || users.length < 2) {
     await respond(":red-x: No valid targets found for attack.");
     return;
   }
-  const targets = users.filter((u) => u.slack_uid !== user.slack_uid && (u.hp ?? 100) > 0);
-  if (targets.length === 0) {
+
+  let pTargets = users.filter((u) => u.slack_uid !== user.slack_uid && (u.hp ?? 100) > 0);
+  if (pTargets.length === 0) {
     await respond(":red-x: No valid targets found for attack.");
     return;
   }
+
+  const attackerValue = await calc(fUser);
+  if (attackerValue < 25000) {
+    await respond(
+      ":red-x: You must have a net worth of at least *$25,000* (inventory + balance) to attack other players.",
+    );
+    return;
+  }
+
+  const vTargets = [];
+  for (const target of pTargets) {
+    const targetValue = await calc(target);
+    if (targetValue >= 25000) {
+      vTargets.push(target);
+    }
+  }
+
+  if (vTargets.length === 0) {
+    await respond(":red-x: No valid targets found for attack.");
+    return;
+  }
+
   // 3 russian roulette
-  const target = targets[Math.floor(Math.random() * targets.length)];
+  const target = russianRoulette(vTargets);
 
   // 4 check weapon and see what type it is
   const attacker = user.slack_uid;
