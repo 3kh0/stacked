@@ -112,7 +112,7 @@ module.exports = async function attack({ user, item, respond, inv }) {
   // 8 check if dead and loot
   if (newHp === 0) {
     const { lootUser, lootBlock } = require("./looting.js");
-    // Fetch full victim and killer user objects (with id, inventory, balance)
+    // Fetch full victim and killer user objects (with slack_uid, inventory, balance)
     const { data: victimUser } = await supabase
       .from(usersTable)
       .select("slack_uid, inventory, balance")
@@ -123,8 +123,15 @@ module.exports = async function attack({ user, item, respond, inv }) {
       .select("slack_uid, inventory, balance")
       .eq("slack_uid", user.slack_uid)
       .single();
-    // Run looting
-    const lootResult = lootUser(victimUser, killerUser);
+    // Run looting (await in case it's async)
+    let lootResult;
+    try {
+      lootResult = await lootUser(victimUser, killerUser);
+    } catch (e) {
+      console.error("[attack] Error in lootUser:", e);
+      await respond(":red-x: Looting failed. Please report this to 3kh0.");
+      return;
+    }
     // Update both users in DB
     await supabase
       .from(usersTable)
