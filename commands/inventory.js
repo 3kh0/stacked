@@ -27,6 +27,10 @@ module.exports = async ({ respond, command }) => {
     }
   }
 
+  await respond({
+    text: ":clockrun: _Fetching inventory_...",
+  });
+
   let { data: user, error } = await supabase
     .from(usersTable)
     .select("inventory, balance, hp, opt_status")
@@ -37,10 +41,12 @@ module.exports = async ({ respond, command }) => {
     if (!lookup && slack_uid === command.user_id) {
       await respond({
         text: ":red-x: You are not registered! Please run `/stacked start` to begin playing.",
+        replace_original: true,
       });
     } else {
       await respond({
         text: ":red-x: That user does not exist in the database, they might not have used the bot yet.",
+        replace_original: true,
       });
     }
     return;
@@ -128,5 +134,5 @@ module.exports = async ({ respond, command }) => {
     });
   }
 
-  await respond({ blocks });
+  await respond({ blocks, replace_original: true });
 };
