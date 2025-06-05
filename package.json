@@ -16,7 +16,7 @@
   "dependencies": {
     "@slack/bolt": "^4.4.0",
     "@slack/web-api": "^7.9.2",
-    "@supabase/supabase-js": "^2.49.8",
+    "@supabase/supabase-js": "^2.49.10",
     "dotenv": "^16.5.0",
     "fs": "0.0.1-security",
     "nodemon": "^3.1.10",
