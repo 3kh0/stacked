@@ -40,17 +40,19 @@ async function lootUser(victim, killer) {
     fItems.map((i) => i.name),
   );
 
-  // 3 take every third
+  // 3 take random item from each group of 3
   let lootCs = {};
   if (fItems.length === 0) {
     console.log(`[loot] victim has no items`);
   } else if (fItems.length < 3) {
-    // If less than 3 items, take the last one
-    const name = fItems[fItems.length - 1].name;
+    const ran = Math.floor(Math.random() * fItems.length);
+    const name = fItems[ran].name;
     lootCs[name] = (lootCs[name] || 0) + 1;
   } else {
-    for (let i = 2; i < fItems.length; i += 3) {
-      const name = fItems[i].name;
+    for (let i = 0; i < fItems.length; i += 3) {
+      const group = fItems.slice(i, i + 3);
+      const ran = Math.floor(Math.random() * group.length);
+      const name = group[ran].name;
       lootCs[name] = (lootCs[name] || 0) + 1;
     }
   }
@@ -66,8 +68,7 @@ async function lootUser(victim, killer) {
       console.log(`[loot] add ${qty} of ${name} to killer.slack_uid=${killer.slack_uid}`);
       await addItems(killer.slack_uid, { item: name, qty });
 
-      let emoji = "";
-      emoji = itemEmoji(name);
+      const emoji = itemEmoji(name);
       summary.push(`${emoji} \`${name}\` x${qty}`);
     } catch (e) {
       console.error(`[loot] error on transfer ${name}: ${e.message}`);
