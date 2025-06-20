@@ -13,7 +13,7 @@ importers:
         version: 4.4.0(@types/express@5.0.2)
       '@slack/web-api':
         specifier: ^7.9.2
-        version: 7.9.2
+        version: 7.9.3
       '@supabase/supabase-js':
         specifier: ^2.50.0
         version: 2.50.0
@@ -139,8 +139,8 @@ packages:
     resolution: {integrity: sha512-n0EGm7ENQRxlXbgKSrQZL69grzg1gHLAVd+GlRVQJ1NSORo0FrApR7wql/gaKdu2n4TO83Sq/AmeUOqD60aXUA==}
     engines: {node: '>= 12.13.0', npm: '>= 6.12.0'}
 
-  '@slack/web-api@7.9.2':
-    resolution: {integrity: sha512-3HoDwV6+ZSTfV+DsbnUd82GlZY0a+DPXuHQHpxWTqgxjM3JWZyGiwR+ov3d2M16pWiMzA+l58UJ5lm1znGq0yA==}
+  '@slack/web-api@7.9.3':
+    resolution: {integrity: sha512-xjnoldVJyoUe61Ltqjr2UVYBolcsTpp5ottqzSI3l41UCaJgHSHIOpGuYps+nhLFvDfGGpDGUeQ7BWiq3+ypqA==}
     engines: {node: '>= 18', npm: '>= 8.6.0'}
 
   '@supabase/auth-js@2.70.0':
@@ -1105,7 +1105,7 @@ snapshots:
       '@slack/oauth': 3.0.3
       '@slack/socket-mode': 2.0.4
       '@slack/types': 2.14.0
-      '@slack/web-api': 7.9.2
+      '@slack/web-api': 7.9.3
       '@types/express': 5.0.2
       axios: 1.10.0
       express: 5.1.0
@@ -1125,7 +1125,7 @@ snapshots:
   '@slack/oauth@3.0.3':
     dependencies:
       '@slack/logger': 4.0.0
-      '@slack/web-api': 7.9.2
+      '@slack/web-api': 7.9.3
       '@types/jsonwebtoken': 9.0.10
       '@types/node': 24.0.3
       jsonwebtoken: 9.0.2
@@ -1136,7 +1136,7 @@ snapshots:
   '@slack/socket-mode@2.0.4':
     dependencies:
       '@slack/logger': 4.0.0
-      '@slack/web-api': 7.9.2
+      '@slack/web-api': 7.9.3
       '@types/node': 24.0.3
       '@types/ws': 8.18.1
       eventemitter3: 5.0.1
@@ -1148,7 +1148,7 @@ snapshots:
 
   '@slack/types@2.14.0': {}
 
-  '@slack/web-api@7.9.2':
+  '@slack/web-api@7.9.3':
     dependencies:
       '@slack/logger': 4.0.0
       '@slack/types': 2.14.0
