@@ -5,7 +5,8 @@ const path = require("path");
 require("dotenv").config();
 const app = new App({
   token: process.env.SLACK_BOT_TOKEN,
-  signingSecret: process.env.SLACK_SIGNING_SECRET,
+  appToken: process.env.SLACK_APP_TOKEN,
+  socketMode: true,
 });
 
 app.command("/stacked", async ({ command, ack, respond }) => {
@@ -105,22 +106,7 @@ placeValue();
 
 require("./functions/reminder.js"); // cooldown reminders
 
-// healthcheck
-const http = require("http");
-
-http
-  .createServer((req, res) => {
-    if (req.url === "/" && req.method === "GET") {
-      res.writeHead(200, { "Content-Type": "text/plain" });
-      res.end("OK", () => {});
-    } else {
-      res.writeHead(404);
-      res.end();
-    }
-  })
-  .listen(3001);
-
 (async () => {
-  await app.start(process.env.PORT || 3000);
+  await app.start();
   console.log("⚡️ Stacked! and ready for action!");
 })();

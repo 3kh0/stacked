@@ -20,7 +20,7 @@ Stacked is an economy game about collecting items, gambling, and using them to f
 
    ```env
    SLACK_BOT_TOKEN=xoxb-abcdefghijklmnopqrstuvwxyz123456
-   SLACK_SIGNING_SECRET=abcdefghijklmnopqrstuvwxyz123456
+   SLACK_APP_TOKEN=xapp-abcdefghijklmnopqrstuvwxyz123456
    SUPABASE_URL=https://abcdefghijklmnopqrstuvwxyz123456.supabase.co
    SUPABASE_SERVICE_ROLE_KEY=abcdefghijklmnopqrstuvwxyz123456
    SUPABASE_USERS_TABLE=users
