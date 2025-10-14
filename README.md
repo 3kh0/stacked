@@ -49,7 +49,7 @@ Stacked is an economy game about collecting items, gambling, and using them to f
 
    ![image](https://github.com/user-attachments/assets/008e84c5-eca8-432a-b5c5-0ef0454dc2bd)
 
-8. Start the bot:
+7. Start the bot:
 
    ```sh
    pnpm start
